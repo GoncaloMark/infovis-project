@@ -63,3 +63,32 @@ body {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     border-radius: 50px;
 }
+
+.card {
+    width: 18rem;
+    min-height: 28rem;
+}
+
+.card .card-img-top {
+    height: 4.5rem;
+}
+
+.card .card-img-top.movies {
+    background: linear-gradient(180deg, #A4F1FF 0%, #D1F8FF 100%);
+}
+
+.card .card-img-top.people {
+    background: linear-gradient(180deg, #FEB2B2 0%, #FFD7D7 100%);
+}
+
+.lh-bigger {
+    line-height: 2.5;
+}
+
+.custom-gap > .col-auto {
+    margin-right: 2rem; /* Same as g-5 gap (3rem total) */
+}
+
+.custom-gap > .col-auto:last-child {
+    margin-right: 0; /* Ensure no extra gap on the last item */
+}
