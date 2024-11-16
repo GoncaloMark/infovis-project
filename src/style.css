@@ -92,3 +92,8 @@ body {
 .custom-gap > .col-auto:last-child {
     margin-right: 0; /* Ensure no extra gap on the last item */
 }
+
+/* If active, add underline */
+.nav-link span.active{
+    text-decoration: underline;
+}
