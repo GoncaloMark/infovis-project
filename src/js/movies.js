@@ -62,7 +62,7 @@ d3.csv('../../data/movies.csv').then(data => {
 
     // Create the line chart
     const lineChart1 = document.getElementById('test1');
-    const margin = { top: 20, right: 30, bottom: 20, left: 50 };
+    const margin = { top: 20, right: 30, bottom: 20, left: 70 };
     const width = lineChart1.clientWidth - margin.left - margin.right;
     const height = lineChart1.clientHeight - margin.top - margin.bottom;
 
@@ -85,11 +85,14 @@ d3.csv('../../data/movies.csv').then(data => {
 
     // Add axes
     svg.append('g')
+        .attr('class', 'x-axis')  // Add class here
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d3.format("d")));
 
     svg.append('g')
+        .attr('class', 'y-axis')  // Add class here
         .call(d3.axisLeft(y));
+
 
     // Define a color scale
     const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -139,27 +142,39 @@ d3.csv('../../data/movies.csv').then(data => {
         // Update y scale domain
         y.domain(updatedYDomain);
 
+        // Clear previous graph paths (the lines)
+        d3.select('#test1 svg').selectAll('path').remove();
 
-        // Clear previous graphs
-        d3.selectAll("svg").selectAll('path').remove();
+        // Clear previous axes
+        d3.select('#test1 svg').selectAll('.x-axis').remove();
+        d3.select('#test1 svg').selectAll('.y-axis').remove();
 
-        // Re-render the lines for each graph
+        // Re-render the lines for each genre
         genreData.forEach((genreObj, index) => {
             const line = d3.line()
                 .x(d => x(d.year))  // x is your x scale, assuming you have it defined
                 .y(d => y(d[selectedMetric])); // Use the selected metric
 
-            console.log(genreObj.data);
-
-            // Select the appropriate SVG for each graph
-            const svg = d3.select(`#test1`).select('svg').select('g');
-
-            svg.append('path')
+            // Append the new lines for each genre
+            d3.select('#test1 svg g')
+                .append('path')
                 .datum(genreObj.data)
                 .attr('fill', 'none')
                 .attr('stroke', color(index))  // Assuming 'color' function is defined to pick colors
                 .attr('stroke-width', 2)
                 .attr('d', line);
         });
+
+        // Re-render the axes with the updated y scale
+        d3.select('#test1 svg g')
+            .append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+        d3.select('#test1 svg g')
+            .append('g')
+            .attr('class', 'y-axis')
+            .call(d3.axisLeft(y));
     });
 });
