@@ -1,3 +1,9 @@
+html {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(52, 58, 64) transparent;
+    overflow-x: hidden;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #E1E1E1;
@@ -6,6 +12,21 @@ body {
     overflow-x: auto; 
     margin: 0; 
     margin-left: 250px;
+    height: 100vh;
+}
+
+
+body::-webkit-scrollbar {
+    height: 6px; /* Minimal height for horizontal scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track for minimal look */
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0; /* Scrollbar thumb color */
+    border-radius: 10px; /* Rounded edges for thumb */
 }
 
 .nav-link {
