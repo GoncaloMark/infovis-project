@@ -72,56 +72,8 @@
         <!-- Filter Bar -->
         <div class="filter-bar">
             <div class="genres mt-0" style="height: 80%;">
-                <ul class="genre-list list-group">
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Top Genres
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Action
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Adventure
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Animation
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Biography
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Comedy
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Crime
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Documentary
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                </ul>
+                <!-- Genre List-->
+                <ul class="genre-list list-group" id="genreList"></ul>
             </div>
             <div class="time-select mt-4">
                 <select class="form-select" aria-label="Time selection">
@@ -159,6 +111,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+    <script src="./js/filterBar.js"></script>
+    <script src="./js/movies.js"></script>
 </body>
 
 </html>
