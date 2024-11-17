@@ -80,76 +80,10 @@
                     <input class="form-control" type="text" id="search" placeholder="Search for a director..."
                         aria-describedby="directorSearch">
                 </div>
-                <ul class="search-results list-group" id="searchResults">
-                    <li class="search-result list-group-item">
-                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
-                        Director 1
-                    </li>
-                    <li class="search-result list-group-item">
-                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
-                        Director 2
-                    </li>
-                    <li class="search-result list-group-item">
-                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
-                        Director 3
-                    </li>
-                    <li class="search-result list-group-item">
-                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
-                        Director 4
-                    </li>
-                </ul>
+                <ul class="selected-results list-group" id="selectedResults"></ul>
             </div>
             <div class="genres">
-                <ul class="genre-list list-group">
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Top Genres
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Action
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Adventure
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Animation
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Biography
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Comedy
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Crime
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Documentary
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
-                        Drama
-                        <input type="checkbox" class="form-check-input" />
-                    </li>
-                </ul>
+                <ul class="genre-list list-group" id="genreList"></ul>
             </div>
             <div class="time-select mt-4">
                 <select class="form-select" aria-label="Time selection">
@@ -163,6 +97,7 @@
                 </select>
             </div>
         </div>
+
 
         <!-- Content Items -->
         <div class="content-item">
@@ -181,6 +116,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+    <script src="./js/filterBar.js"></script>
+    <script src="./js/directors.js"></script>
 </body>
 
 </html>
