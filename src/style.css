@@ -68,6 +68,62 @@ body::-webkit-scrollbar-thumb {
     z-index: 1000;
 }
 
+.filter-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    color: white;
+    width: 275px;
+    padding: 0;
+    margin-right: 2rem;
+}
+
+.filter-bar .search {
+    width: 100%;
+    height: 25%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.filter-bar .search .search-results {
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+.list-group-item {
+    display: flex; 
+    border: 0;
+    background-color: #f8f9fa;
+    align-items: center;
+}
+
+.btn-close {
+    font-size: 0.6rem;
+}
+
+.form-check-input {
+    font-size: 1.3rem;
+    border-width: 0.1rem;
+    background-color: #EDEDED;
+}
+
+.genres {
+    width: 100%;
+    height: 75%;
+    margin-top: 1.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.genre-list {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
 .content {
     flex: 1 0 auto;
     display: flex;
