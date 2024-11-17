@@ -19,8 +19,7 @@
     <!-- Sidebar -->
     <div id="sidebar" class="d-flex flex-column align-items-start text-white">
         <div class="px-3 pt-2">
-            <a href="#"
-                class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <a href="#" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                 <span class="d-none d-sm-inline mt-3 sidebar-title">Financial Visualization of the Movie Industry</span>
             </a>
             <hr class="mx-0 sidebar-hr">
@@ -44,7 +43,8 @@
                         </span>
                     </a>
                     <!-- Initially shown submenu -->
-                    <ul class="collapse show nav flex-column ms-4 border-start ps-3" id="submenu1" data-bs-parent="#menu">
+                    <ul class="collapse show nav flex-column ms-4 border-start ps-3" id="submenu1"
+                        data-bs-parent="#menu">
                         <li class="w-100">
                             <a href="directors.html" class="nav-link px-0">
                                 <span class="d-none d-sm-inline">Directors</span>
@@ -69,6 +69,101 @@
 
     <!-- Main Content -->
     <div class="content">
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="search">
+                <div class="input-group">
+                    <span class="input-group-text" id="actorSearch">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input class="form-control" type="text" id="search" placeholder="Search for an actor..."
+                        aria-describedby="actorSearch">
+                </div>
+                <ul class="search-results list-group" id="searchResults">
+                    <li class="search-result list-group-item">
+                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
+                        Actor 1
+                    </li>
+                    <li class="search-result list-group-item">
+                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
+                        Actor 2
+                    </li>
+                    <li class="search-result list-group-item">
+                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
+                        Actor 3
+                    </li>
+                    <li class="search-result list-group-item">
+                        <button class="btn-close me-2" type="button" aria-label="Close"></button>
+                        Actor 4
+                    </li>
+                </ul>
+            </div>
+            <div class="genres">
+                <ul class="genre-list list-group">
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Top Genres
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Action
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Adventure
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Animation
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Biography
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Comedy
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Crime
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Documentary
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Drama
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Drama
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Drama
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                    <li class="genre list-group-item d-flex justify-content-between align-items-center">
+                        Drama
+                        <input type="checkbox" class="form-check-input" />
+                    </li>
+                </ul>
+            </div>
+            <div class="time-select mt-4">
+                <select class="form-select" aria-label="Time selection">
+                    <option value="alltime" selected>All-Time</option>
+                    <option value="thisyear">This Year</option>
+                    <option value="lastyear">Last Year</option>
+                    <option value="last5years">Last 5 Years</option>
+                    <option value="last10years">Last 10 Years</option>
+                    <option value="last25years">Last 25 Years</option>
+                    <option value="specificyear">Specific Year</option>
+                </select>
+            </div>
+        </div>
+
         <div class="content-item">
             <svg id="lineGraph1" width="600" height="400"></svg>
         </div>
