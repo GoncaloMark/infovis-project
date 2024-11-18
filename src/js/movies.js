@@ -6,6 +6,7 @@ d3.csv('../../data/movies.csv').then(data => {
         d.popularity = parseFloat(d.popularity); // Ensure popularity is a number
         d.vote_average = parseFloat(d.vote_average); // Ensure vote_average is a number
         d.release_year = parseInt(d.release_date.split('-')[0]); // Extract release year
+        d.roi = (d.revenue - (d.budget * 2)) / d.budget * 100; // Calculate ROI
     });
 
     // Get a list of all unique genres
@@ -110,8 +111,9 @@ d3.csv('../../data/movies.csv').then(data => {
                     vote_average: d3.mean(movies, d => d.vote_average),
                     revenue: d3.mean(movies, d => d.revenue),
                     budget: d3.mean(movies, d => d.budget),
-                    roi: d3.mean(movies, d => d.revenue / d.budget),
-                    films_released: movies.length
+                    roi: d3.mean(movies, d => (d.revenue - (d.budget * 2)) / d.budget * 100),
+                    films_released: movies.length,
+                    films: movies
                 };
             }).sort((a, b) => a.year - b.year);
 
@@ -125,11 +127,11 @@ d3.csv('../../data/movies.csv').then(data => {
 
     // Example usage:
     const selectedGenres = uniqueGenres.slice(0, 5); // Or any list of genres you want
-    const startingYear = 2010; // Set the desired starting year
     const genreData = getGenreData(selectedGenres, filteredData);
+    console.log(genreData);
 
     /* ----- Line Chart ----- */
-    const lineChart = document.getElementById('test1');
+    const lineChart = document.getElementById('lineGraph');
     const margin = { top: 20, right: 30, bottom: 20, left: 70 };
     const width = lineChart.clientWidth - margin.left - margin.right;
     const height = lineChart.clientHeight - margin.top - margin.bottom;
@@ -155,7 +157,8 @@ d3.csv('../../data/movies.csv').then(data => {
         .attr('class', 'legend-container')
         .style('display', 'flex')
         .style('justify-content', 'center')
-        .style('margin-top', '10px');
+        .style('margin-top', '20px');
+
 
     const updateLineChart = (data, metric) => {
         // Update x and y domains
@@ -205,7 +208,7 @@ d3.csv('../../data/movies.csv').then(data => {
                 .attr('class', 'legend-container')
                 .style('display', 'flex')
                 .style('justify-content', 'center')
-                .style('margin-top', '10px');
+                .style('margin-top', '20px');
         } else {
             // Clear the existing legend content
             legend.selectAll('*').remove();
@@ -213,13 +216,159 @@ d3.csv('../../data/movies.csv').then(data => {
 
         data.forEach((genreObj, index) => {
             legend.append('div')
-                .style('margin', '0 10px')
+                .style('margin', '0 20px')
+                .style('font-size', '12px')
                 .html(`
-                    <span style="display:inline-block;width:12px;height:12px;background-color:${color(index)};"></span>
+                    <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
                     ${genreObj.genre}
                 `);
         });
     };
+
+    /* ----- Box Plot ----- */
+    const boxWidth = 40;
+    const boxPlot = document.getElementById('boxPlot');
+
+    /**
+     * Generate boxplot data for genres based on ROI.
+     * @param {Array} genres - An array of genre strings.
+     * @param {Array} data - The movie data array.
+     * @param {Number} startingYear - The minimum release year to include.
+     * @param {Number} endingYear - The maximum release year to include.
+     * @returns {Array} - An array of objects containing genre and boxplot data.
+     */
+    function getBoxplotData(genres, data, startingYear = 1970, endingYear = 2024) {
+        return genres.map(genre => {
+            const movies = data.filter(d => d.genres.includes(genre) && d.release_year >= startingYear && d.release_year <= endingYear);
+            const roiValues = movies.map(d => (d.revenue - (d.budget * 2)) / d.budget * 100).filter(v => !isNaN(v) && isFinite(v));
+
+            // Calculate boxplot statistics
+            roiValues.sort(d3.ascending);
+            const q1 = d3.quantile(roiValues, 0.25);
+            const median = d3.quantile(roiValues, 0.5);
+            const q3 = d3.quantile(roiValues, 0.75);
+            const iqr = q3 - q1;
+            const min = Math.max(d3.min(roiValues), q1 - 1.5 * iqr);
+            const max = Math.min(d3.max(roiValues), q3 + 1.5 * iqr);
+
+            return {
+                genre,
+                stats: { min, q1, median, q3, max }
+            };
+        });
+    }
+
+    const boxplotData = getBoxplotData(selectedGenres, filteredData);
+
+    /* ----- Modular Box Plot ----- */
+    const updateBoxPlot = (data, genres) => {
+        // Clear previous elements
+        svgBox.selectAll('*').remove();
+
+        // Update scales
+        xBox.domain(genres);
+        yBox.domain([
+            d3.min(data.flatMap(d => [d.stats.min])) * 1.5,
+            d3.max(data.flatMap(d => [d.stats.max])) * 1.1
+        ]);
+
+        // Draw axes
+        svgBox.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(xBox))
+            .selectAll('path, line')
+            .style('stroke', '#ccc'); // Axis style similar to line chart
+
+        svgBox.append('g')
+            .call(d3.axisLeft(yBox))
+            .selectAll('path, line')
+            .style('stroke', '#ccc'); // Axis style similar to line chart
+
+        // Draw boxplots
+        data.forEach((d, index) => {
+            const { genre, stats } = d;
+
+            // Whiskers
+            svgBox.append('line')
+            .attr('x1', xBox(genre) + xBox.bandwidth() / 2)
+            .attr('x2', xBox(genre) + xBox.bandwidth() / 2)
+            .attr('y1', yBox(stats.min))
+            .attr('y2', yBox(stats.max))
+            .attr('stroke', 'black');
+
+            // Box
+            svgBox.append('rect')
+            .attr('x', xBox(genre) + xBox.bandwidth() / 2 - boxWidth / 2)
+            .attr('y', yBox(stats.q3))
+            .attr('height', yBox(stats.q1) - yBox(stats.q3))
+            .attr('width', boxWidth)
+            .attr('stroke', 'black')
+            .style('fill', color(index));
+
+            // Median line
+            svgBox.append('line')
+            .attr('x1', xBox(genre) + xBox.bandwidth() / 2 - boxWidth / 2)
+            .attr('x2', xBox(genre) + xBox.bandwidth() / 2 + boxWidth / 2)
+            .attr('y1', yBox(stats.median))
+            .attr('y2', yBox(stats.median))
+            .attr('stroke', 'black');
+        });
+
+        // Optional: Add a legend or labels similar to line chart
+        // Update legend
+        const legend = d3.select(boxPlot).select('.legend-container-box');
+        if (!legend.node()) {
+            // Create a container for the legend if it doesn't exist
+            d3.select(lineChart)
+                .append('div')
+                .attr('class', 'legend-container-box')
+                .style('display', 'flex')
+                .style('justify-content', 'center')
+                .style('margin-top', '20px');
+        } else {
+            // Clear the existing legend content
+            legend.selectAll('*').remove();
+        }
+
+        data.forEach((genreObj, index) => {
+            legend.append('div')
+                .style('margin', '0 20px')
+                .style('font-size', '12px')
+                .html(`
+                            <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
+                            ${genreObj.genre}
+                        `);
+        });
+    };
+
+    /* ----- Initialization ----- */
+    const svgBox = d3.select('#boxPlot')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const xBox = d3.scaleBand()
+        .range([0, width])
+        .padding(0.5);
+
+    const yBox = d3.scaleLinear()
+        .range([height, 0]);
+
+    // Call the function with initial data
+    updateBoxPlot(boxplotData, selectedGenres);
+
+    // Initialize the legend container once
+    const legendContainerBox = d3.select('#boxPlot')
+        .append('div')
+        .attr('class', 'legend-container-box')
+        .style('display', 'flex')
+        .style('justify-content', 'center')
+        .style('margin-top', '20px');
+
+    // Optional: Add an explicit DOM order check if needed
+    d3.select('#boxPlot').node().appendChild(legendContainerBox.node());
 
     // Dropdown change event handler
     d3.select('#metricDropdown').on('change', function () {
@@ -227,16 +376,16 @@ d3.csv('../../data/movies.csv').then(data => {
         updateLineChart(genreData, selectedMetric);
     });
 
-    /* ----- Filter Bar ----- */
-
     const updateAllGraphs = () => {
         const selectedGenres = Array.from(document.querySelectorAll('.genre input:checked')).map(d => d.parentNode.textContent.trim());
         const startingYear = $("#minYear").val();
         const endingYear = $("#maxYear").val();
         const genreData = getGenreData(selectedGenres, filteredData, startingYear, endingYear);
+        const boxplotData = getBoxplotData(selectedGenres, filteredData, startingYear, endingYear);
         const selectedMetric = document.getElementById('metricDropdown').value;
 
         updateLineChart(genreData, selectedMetric);
+        updateBoxPlot(boxplotData, selectedGenres);
     };
 
     // Add event listener to all checkboxes
@@ -247,6 +396,8 @@ d3.csv('../../data/movies.csv').then(data => {
     // Initial render
     updateAllGraphs();
 
+
+    /* ----- Time Slider ----- */
     $(function () {
         // Initialize the slider with min, max, and initial values
         $("#slider-range").slider({
