@@ -73,17 +73,20 @@
         <div class="filter-bar">
             <div class="genres mt-0" style="height: 80%;">
                 <!-- Genre List-->
-                <ul class="genre-list list-group" id="genreList"></ul>
+                <ul class="genre-list list-group" id="genreList">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-custom w-100" type="button" id="uncheckAll">Uncheck All</button>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-0">
+                        <p class="w-100 text-center m-0 selectedLimit" id="selectedLimit"><em>3 of 5 selected</em></p>
+                </ul>
             </div>
             <div class="time-select mt-4">
                 <select class="form-select" aria-label="Time selection">
                     <option value="alltime" selected>All-Time</option>
-                    <option value="thisyear">This Year</option>
-                    <option value="lastyear">Last Year</option>
                     <option value="last5years">Last 5 Years</option>
                     <option value="last10years">Last 10 Years</option>
                     <option value="last25years">Last 25 Years</option>
-                    <option value="specificyear">Specific Year</option>
                 </select>
             </div>
             <div class="movie-type-select mt-4">

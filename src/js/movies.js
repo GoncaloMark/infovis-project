@@ -25,6 +25,57 @@ d3.csv('../../data/movies.csv').then(data => {
         genreList.appendChild(li);
     });
 
+    // Check the first 5 genres by default
+    document.querySelectorAll('.genre input').forEach((input, index) => {
+        if (index < 3) {
+            input.checked = true;
+        }
+    });
+
+    // Add event listener to all checkboxes
+    document.querySelectorAll('.genre input').forEach(input => {
+        input.addEventListener('change', () => {
+            const allCheckboxes = document.querySelectorAll('.genre input');
+            const checkedGenres = document.querySelectorAll('.genre input:checked');
+
+            if (checkedGenres.length >= 5) {
+                // Disable all unchecked checkboxes
+                allCheckboxes.forEach(checkbox => {
+                    if (!checkbox.checked) {
+                        checkbox.disabled = true;
+                    }
+                });
+            } else {
+                // Enable all checkboxes if fewer than 5 are selected
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = false;
+                });
+            }
+
+            document.getElementById('selectedLimit').textContent = `${checkedGenres.length} of 5 selected`;
+
+            // Update the graphs when the selection changes
+            updateAllGraphs();
+        });
+    });
+
+    // Add an event listener to the 'Uncheck All' button
+    document.getElementById('uncheckAll').addEventListener('click', () => {
+        document.querySelectorAll('.genre input').forEach(input => {
+            input.checked = false;
+        });
+
+        // Enable all checkboxes
+        document.querySelectorAll('.genre input').forEach(checkbox => {
+            checkbox.disabled = false;
+        });
+
+        document.getElementById('selectedLimit').textContent = '0 of 5 selected';
+
+        // Update the graphs when the selection changes
+        updateAllGraphs();
+    });
+
     // Filter movies from 1970 to today and only include released movies
     // TODO : Make this filter in the data treatment
 
@@ -97,6 +148,14 @@ d3.csv('../../data/movies.csv').then(data => {
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
+    // Initialize the legend container once
+    const legendContainer = d3.select(lineChart)
+        .append('div')
+        .attr('class', 'legend-container')
+        .style('display', 'flex')
+        .style('justify-content', 'center')
+        .style('margin-top', '10px');
+
     const updateLineChart = (data, metric) => {
         // Update x and y domains
         const allYears = data.flatMap(g => g.data.map(d => d.year));
@@ -135,25 +194,31 @@ d3.csv('../../data/movies.csv').then(data => {
             .call(d3.axisLeft(y))
             .selectAll('path, line')
             .style('stroke', '#ccc');
+
+        // Update legend
+        const legend = d3.select(lineChart).select('.legend-container');
+        if (!legend.node()) {
+            // Create a container for the legend if it doesn't exist
+            d3.select(lineChart)
+                .append('div')
+                .attr('class', 'legend-container')
+                .style('display', 'flex')
+                .style('justify-content', 'center')
+                .style('margin-top', '10px');
+        } else {
+            // Clear the existing legend content
+            legend.selectAll('*').remove();
+        }
+
+        data.forEach((genreObj, index) => {
+            legend.append('div')
+                .style('margin', '0 10px')
+                .html(`
+                    <span style="display:inline-block;width:12px;height:12px;background-color:${color(index)};"></span>
+                    ${genreObj.genre}
+                `);
+        });
     };
-
-    // Render initial chart with 'popularity'
-    updateLineChart(genreData, 'popularity');
-
-    // Add legend below the graph
-    const legend = d3.select(lineChart).append('div')
-        .style('display', 'flex')
-        .style('justify-content', 'center')
-        .style('margin-top', '10px');
-
-    selectedGenres.forEach((genre, index) => {
-        legend.append('div')
-            .style('margin', '0 10px')
-            .html(` 
-                <span style="display:inline-block;width:12px;height:12px;background-color:${color(index)};"></span>
-                ${genre}
-            `);
-    });
 
     // Dropdown change event handler
     d3.select('#metricDropdown').on('change', function () {
@@ -163,5 +228,22 @@ d3.csv('../../data/movies.csv').then(data => {
 
     /* ----- Filter Bar ----- */
 
+    const updateAllGraphs = () => {
+        const selectedGenres = Array.from(document.querySelectorAll('.genre input:checked')).map(d => d.parentNode.textContent.trim());
+        //const startingYear = parseInt(document.getElementById('startingYear').value);
+        const startingYear = 2010;
+        const genreData = getGenreData(selectedGenres, filteredData, startingYear);
+        const selectedMetric = document.getElementById('metricDropdown').value;
+
+        updateLineChart(genreData, selectedMetric);
+    };
+
+    // Add event listener to all checkboxes
+    document.querySelectorAll('.genre input').forEach(input => {
+        input.addEventListener('change', updateAllGraphs);
+    });
+
+    // Initial render
+    updateAllGraphs();
 
 });
