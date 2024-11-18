@@ -11,3 +11,5 @@ selectedDirectors.forEach(director => {
     `;
     selectedResults.appendChild(li);
 });
+
+barChart("../../data/directors.csv", ['average_budget', 'average_revenue'], ['Aamir Khan', 'Aaron Sorkin', 'Adam Mason', 'Alan J. Pakula', 'Alan Mak'])
