@@ -27,7 +27,13 @@ d3.csv('../../data/movies.csv').then(data => {
 
     // Filter movies from 1970 to today and only include released movies
     // TODO : Make this filter in the data treatment
+
     const filteredData = data.filter(d => d.release_year >= 1970 && d.status === 'Released');
+
+    // Get the oldest and most recent years
+    const years = filteredData.map(d => d.release_year);
+    const oldestYear = Math.min(...years);
+    const mostRecentYear = Math.max(...years);
 
     /**
      * Generate genre data for a given list of genres, filtering by starting year.
@@ -96,18 +102,18 @@ d3.csv('../../data/movies.csv').then(data => {
         const allYears = data.flatMap(g => g.data.map(d => d.year));
         x.domain([d3.min(allYears), d3.max(allYears)]);
         y.domain([0, d3.max(data.flatMap(g => g.data), d => d[metric])]);
-    
+
         // Remove previous paths and axes
         svg.selectAll('path').remove();
         svg.selectAll('.x-axis').remove();
         svg.selectAll('.y-axis').remove();
-    
+
         // Render new lines
         data.forEach((genreObj, index) => {
             const line = d3.line()
                 .x(d => x(d.year))
                 .y(d => y(d[metric]));
-    
+
             svg.append('path')
                 .datum(genreObj.data)
                 .attr('fill', 'none')
@@ -115,7 +121,7 @@ d3.csv('../../data/movies.csv').then(data => {
                 .attr('stroke-width', 2)
                 .attr('d', line);
         });
-    
+
         // Add axes
         svg.append('g')
             .attr('class', 'x-axis')
@@ -123,14 +129,14 @@ d3.csv('../../data/movies.csv').then(data => {
             .call(d3.axisBottom(x).tickFormat(d3.format("d")))
             .selectAll('path, line')
             .style('stroke', '#ccc');
-    
+
         svg.append('g')
             .attr('class', 'y-axis')
             .call(d3.axisLeft(y))
             .selectAll('path, line')
             .style('stroke', '#ccc');
     };
-    
+
     // Render initial chart with 'popularity'
     updateLineChart(genreData, 'popularity');
 
@@ -156,4 +162,6 @@ d3.csv('../../data/movies.csv').then(data => {
     });
 
     /* ----- Filter Bar ----- */
+
+
 });
