@@ -91,12 +91,13 @@ d3.csv('../../data/movies.csv').then(data => {
      * @param {Array} genres - An array of genre strings.
      * @param {Array} data - The movie data array.
      * @param {Number} startingYear - The minimum release year to include.
+     * @param {Number} endingYear - The maximum release year to include
      * @returns {Array} - An array of objects containing genre and its aggregated data.
      */
-    function getGenreData(genres, data, startingYear) {
+    function getGenreData(genres, data, startingYear = 1970, endingYear = 2024) {
         return genres.map(genre => {
             // Filter movies that include the genre and meet the starting year criteria
-            const movies = data.filter(d => d.genres.includes(genre) && d.release_year >= startingYear);
+            const movies = data.filter(d => d.genres.includes(genre) && d.release_year >= startingYear && d.release_year <= endingYear);
 
             // Group movies by release year
             const moviesByYear = d3.group(movies, d => d.release_year);
@@ -125,7 +126,7 @@ d3.csv('../../data/movies.csv').then(data => {
     // Example usage:
     const selectedGenres = uniqueGenres.slice(0, 5); // Or any list of genres you want
     const startingYear = 2010; // Set the desired starting year
-    const genreData = getGenreData(selectedGenres, filteredData, startingYear);
+    const genreData = getGenreData(selectedGenres, filteredData);
 
     /* ----- Line Chart ----- */
     const lineChart = document.getElementById('test1');
@@ -230,9 +231,9 @@ d3.csv('../../data/movies.csv').then(data => {
 
     const updateAllGraphs = () => {
         const selectedGenres = Array.from(document.querySelectorAll('.genre input:checked')).map(d => d.parentNode.textContent.trim());
-        //const startingYear = parseInt(document.getElementById('startingYear').value);
-        const startingYear = 2010;
-        const genreData = getGenreData(selectedGenres, filteredData, startingYear);
+        const startingYear = $("#minYear").val();
+        const endingYear = $("#maxYear").val();
+        const genreData = getGenreData(selectedGenres, filteredData, startingYear, endingYear);
         const selectedMetric = document.getElementById('metricDropdown').value;
 
         updateLineChart(genreData, selectedMetric);
@@ -245,5 +246,84 @@ d3.csv('../../data/movies.csv').then(data => {
 
     // Initial render
     updateAllGraphs();
+
+    $(function () {
+        // Initialize the slider with min, max, and initial values
+        $("#slider-range").slider({
+            range: true,
+            min: 1970,
+            max: 2024,
+            values: [1970, 2024],
+            slide: function (event, ui) {
+                // Get the current min and max values
+                var minYear = ui.values[0];
+                var maxYear = ui.values[1];
+
+                // If the difference between the two values is less than 5, adjust
+                if (maxYear - minYear < 5) {
+                    if (ui.handleIndex === 0) {
+                        // If the left thumb is being moved, lock it to a position 5 years before the right thumb
+                        minYear = maxYear - 5;
+                    } else {
+                        // If the right thumb is being moved, lock it to a position 5 years after the left thumb
+                        maxYear = minYear + 5;
+                    }
+                }
+
+                // Update the input fields only after adjusting the values
+                $("#minYear").val(minYear);
+                $("#maxYear").val(maxYear);
+
+                // Update the slider values if needed (only if there was an adjustment)
+                if (ui.values[0] !== minYear || ui.values[1] !== maxYear) {
+                    $("#slider-range").slider("values", 0, minYear);
+                    $("#slider-range").slider("values", 1, maxYear);
+                }
+
+                // Call updateAllGraphs after updating the values
+                updateAllGraphs();
+            }
+        });
+
+        // When the user types in the min year input field
+        $("#minYear").on("input", function () {
+            var minYear = parseInt($(this).val());
+            var maxYear = parseInt($("#maxYear").val());
+
+            console.log(minYear, maxYear);
+
+            // Ensure that min year is not greater than max year - 5 and adjust maxYear if needed
+            if (minYear != NaN && minYear <= maxYear - 5) {
+                $("#slider-range").slider("values", 0, minYear);
+            } else {
+                // Adjust the maxYear to maintain a 5-year gap
+                minYear = maxYear - 5;
+                $(this).val(minYear);
+                $("#slider-range").slider("values", 0, minYear);
+            }
+
+            // Call updateAllGraphs after changing the value
+            updateAllGraphs();
+        });
+
+        // When the user types in the max year input field
+        $("#maxYear").on("input", function () {
+            var maxYear = parseInt($(this).val());
+            var minYear = parseInt($("#minYear").val());
+
+            // Ensure that max year is not smaller than min year + 5 and adjust minYear if needed
+            if (maxYear != Nan && maxYear >= minYear + 5) {
+                $("#slider-range").slider("values", 1, maxYear);
+            } else {
+                // Adjust the minYear to maintain a 5-year gap
+                maxYear = minYear + 5;
+                $(this).val(maxYear);
+                $("#slider-range").slider("values", 1, maxYear);
+            }
+
+            // Call updateAllGraphs after changing the value
+            updateAllGraphs();
+        });
+    });
 
 });

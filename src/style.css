@@ -197,3 +197,24 @@ body::-webkit-scrollbar-thumb {
     background-color: #343a40;
     color: white;
 }
+
+/* Style for the entire slider track */
+#slider-range {
+    width: 90%; /* Full width of the container */
+    height: 10px; /* Adjust the height of the track */
+    background: #ddd; /* Track background color */
+}
+
+/* Style for the left thumb (min year) */
+#slider-range .ui-slider-handle {
+    background: rgb(237, 237, 237); /* Change to your desired thumb color */
+    border: 2px solid #343a40; /* Add a border to the thumb */
+    width: 15px;
+}
+
+/* Style for the range (the filled space between the thumbs) */
+#slider-range .ui-slider-range {
+    background: #343a40; /* Color of the filled range */
+    border: none; /* Remove the default border */
+    height: 10px; /* Adjust the height of the range */
+}
