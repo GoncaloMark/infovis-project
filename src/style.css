@@ -258,3 +258,47 @@ body::-webkit-scrollbar-thumb {
     opacity: 0;
     transition: opacity 0.2s;
 }
+
+#movieSidebar {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    z-index: 1050; /* Ensure it's above other elements */
+    width: 400px;
+    height: 100vh;
+}
+
+#movieSidebar.closed {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+/* General button styles */
+#toggleMovieSidebar {
+    z-index: 1100; /* Ensure it's above the sidebar itself */
+    position: fixed;
+    height: 5em;
+    top: calc(50% - 3em); /* Adjust 20px to the actual height of the button */
+    right: -1px;
+    transition: transform 0.3s ease-in-out, background-color 0.3s, border 0.3s; /* Include background-color and border transition */
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: #343a40;
+    color: white;
+}
+
+/* When sidebar is open, move button to the left */
+#toggleMovieSidebar.open {
+    transform: translateX(calc(-400px));
+}
+
+/* Prevent background and border changes when button is hovered and the sidebar is open */
+#toggleMovieSidebar.open:hover {
+    border: none !important; /* No border change */
+}
+
+#toggl
+
+/* Apply hover effect only when the sidebar is not open */
+#toggleMovieSidebar:not(.open):hover {
+    transform: translateX(-5px); /* Slight left movement on hover */
+    background-color: #e0e0e0; /* Optional background color change */
+}

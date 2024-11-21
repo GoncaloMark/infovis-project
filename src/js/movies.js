@@ -102,7 +102,7 @@ d3.csv('../../data/movies.csv').then(data => {
             d3.selectAll('.tooltip-line').transition().duration(200).style('opacity', 0);
             d3.selectAll('.tooltip-box').transition().duration(200).style('opacity', 0);
         });
-        
+
     };
 
     // Set up a resize event listener
@@ -118,4 +118,16 @@ d3.csv('../../data/movies.csv').then(data => {
 
     // Initial render
     updateAllGraphs({ selectedGenres: genres.slice(0, 3), ...yearsRange });
+
+    $(document).ready(function () {
+        $("#toggleMovieSidebar").click(function () {
+            $("#movieSidebar").toggleClass("closed");
+            $("#toggleMovieSidebar").toggleClass("open");
+            // Change button icon dynamically
+            const isClosed = $("#movieSidebar").hasClass("closed");
+            $("#toggleMovieSidebar i").toggleClass("bi-chevron-left", isClosed);
+            $("#toggleMovieSidebar i").toggleClass("bi-chevron-right", !isClosed);
+        });
+    });
+
 });
