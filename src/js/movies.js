@@ -1,6 +1,7 @@
 import { initializeFilterBar } from './filterBar.js';
 import { initializeLineChart, updateLineChart } from './linechart.js';
 import { initializeBoxPlot, updateBoxPlot } from './boxplot.js';
+import { initializeStackedBarChart, updateStackedBarChart } from './stackedbarchart.js';
 
 d3.csv('../../data/movies.csv').then(data => {
     // Get unique genres and year range
@@ -51,24 +52,48 @@ d3.csv('../../data/movies.csv').then(data => {
     // Initialize charts
     const lineChart = document.getElementById('lineGraph');
     const boxPlot = document.getElementById('boxPlot');
-    const margin = { top: 20, right: 30, bottom: 20, left: 70 };
-    const width = lineChart.clientWidth - margin.left - margin.right;
-    const height = lineChart.clientHeight - margin.top - margin.bottom;
+    const stackedBarChartElement = document.getElementById('stackedBarChart');
 
-    const x = d3.scaleLinear().domain([yearsRange.minYear, yearsRange.maxYear]).range([0, width]);
-    const y = d3.scaleLinear().range([height, 0]);
+    // Define margin for all charts
+    const margin = { top: 20, right: 30, bottom: 20, left: 70 };
+
+    // Calculate width and height for each chart
+    const lineChartWidth = lineChart.clientWidth - margin.left - margin.right;
+    const lineChartHeight = lineChart.clientHeight - margin.top - margin.bottom;
+
+    const boxPlotWidth = boxPlot.clientWidth - margin.left - margin.right;
+    const boxPlotHeight = boxPlot.clientHeight - margin.top - margin.bottom;
+
+    const stackedBarChartWidth = stackedBarChartElement.clientWidth - margin.left - margin.right;
+    const stackedBarChartHeight = stackedBarChartElement.clientHeight - margin.top - margin.bottom;
+
+    // Define scales
+    const x = d3.scaleLinear().domain([yearsRange.minYear, yearsRange.maxYear]).range([0, lineChartWidth]);
+    const y = d3.scaleLinear().range([lineChartHeight, 0]);
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    const { svg: svgLine } = initializeLineChart(lineChart, margin, width, height, x, y, color);
-    const { svg: svgBox } = initializeBoxPlot(boxPlot, margin, width, height);
+    // Initialize each chart with calculated dimensions
+    const { svg: svgLine } = initializeLineChart(lineChart, margin, lineChartWidth, lineChartHeight, x, y, color);
+    const { svg: svgBox } = initializeBoxPlot(boxPlot, margin, boxPlotWidth, boxPlotHeight);
+    const { svg: svgStackedBar } = initializeStackedBarChart(stackedBarChartElement, margin, stackedBarChartWidth, stackedBarChartHeight);
+
+    // Generate genre data
+    var genreData = getGenreData(genres.slice(0, 5), data, yearsRange.minYear, yearsRange.maxYear);
+
+
+    // Dropdown change event handler for line chart
+    d3.select('#metricDropdown').on('change', function () {
+        updateLineChart(lineChart, svgLine, genreData, this.value, x, y, color, lineChartWidth, lineChartHeight);
+    });
 
     // Update all graphs
     const updateAllGraphs = (filters) => {
-        const genreData = getGenreData(filters.selectedGenres, data, filters.minYear, filters.maxYear);
+        genreData = getGenreData(filters.selectedGenres, data, filters.minYear, filters.maxYear);
         const selectedMetric = document.getElementById('metricDropdown').value;
 
-        updateLineChart(lineChart, svgLine, genreData, selectedMetric, x, y, color, height);
-        updateBoxPlot(boxPlot, svgBox, genreData, filters.selectedGenres, color, 40, height);
+        updateLineChart(lineChart, svgLine, genreData, selectedMetric, x, y, color,lineChartWidth, lineChartHeight);
+        updateBoxPlot(svgBox, genreData, filters.selectedGenres, color, 40, boxPlotWidth, boxPlotHeight);
+        updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, color);
     };
 
     // Initialize the filter bar

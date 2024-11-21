@@ -17,16 +17,53 @@ const initializeLineChart = (lineChartElement, margin, width, height) => {
     return { svg, legendContainer };
 };
 
-const updateLineChart = (lineChart, svg, data, metric, x, y, color, height) => {
+const updateLineChart = (lineChart, svg, data, metric, x, y, color, width, height) => {
     // Update x and y domains
     const allYears = data.flatMap(g => g.data.map(d => d.year));
     x.domain([d3.min(allYears), d3.max(allYears)]);
-    y.domain([0, d3.max(data.flatMap(g => g.data), d => d[metric])]);
+
+    // Get the metric values
+    const allMetricValues = data.flatMap(g => g.data.map(d => d[metric]));
+
+    // Calculate the min and max of the metric values
+    const minValue = d3.min(allMetricValues);
+    const maxValue = d3.max(allMetricValues);
+
+    // Update y domain
+    y.domain([
+        minValue < 0 ? minValue * 2 : minValue,  // Multiply minValue by 1.5 only if it's negative
+        maxValue * 1.1  // Always multiply the max value by 1.1
+    ]);
 
     // Clear previous paths and axes
     svg.selectAll('path').remove();
     svg.selectAll('.x-axis').remove();
     svg.selectAll('.y-axis').remove();
+    svg.selectAll('.grid').remove();  // Clear existing grid lines
+
+    // Create grid lines
+    // Add grid lines for the x-axis
+    svg.append('g')
+        .attr('class', 'grid')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x)
+            .ticks(5)  // Set the number of ticks
+            .tickSize(-height)  // Length of grid lines
+            .tickFormat('')  // Hide the tick labels
+        )
+        .style('stroke', '#ccc')  // Grid line color
+        .style('stroke-width', '0.5px');
+
+    // Add grid lines for the y-axis
+    svg.append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(y)
+            .ticks(5)  // Set the number of ticks
+            .tickSize(-width)  // Length of grid lines
+            .tickFormat('')  // Hide the tick labels
+        )
+        .style('stroke', '#ccc')  // Grid line color
+        .style('stroke-width', '0.5px')
 
     // Render new lines
     data.forEach((genreObj, index) => {

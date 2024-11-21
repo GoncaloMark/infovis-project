@@ -47,20 +47,13 @@ const initializeBoxPlot = (boxPlotElement, margin, width, height) => {
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const legendContainer = d3.select(boxPlotElement)
-        .append('div')
-        .attr('class', 'legend-container-box')
-        .style('display', 'flex')
-        .style('justify-content', 'center')
-        .style('margin-top', '20px');
-
     x.range([0, width]);
     y.range([height, 0]);
 
-    return { svg, legendContainer };
+    return { svg };
 };
 
-const updateBoxPlot = (boxPlot, svg, data, genres, color, boxWidth, height) => {
+const updateBoxPlot = (svg, data, genres, color, boxWidth, width, height) => {
     const boxData = getBoxplotData(data);
 
     // Clear previous elements
@@ -74,16 +67,31 @@ const updateBoxPlot = (boxPlot, svg, data, genres, color, boxWidth, height) => {
     ]);
 
     // Draw axes
-    svg.append('g')
+    const xAxis = svg.append('g')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll('path, line')
+        .call(d3.axisBottom(x));
+
+    xAxis.selectAll('text')
+        .style('font-size', '12px');
+
+    xAxis.selectAll('path, line')
         .style('stroke', '#ccc');
 
     svg.append('g')
         .call(d3.axisLeft(y))
         .selectAll('path, line')
         .style('stroke', '#ccc');
+
+    // Add grid lines for the y-axis
+    svg.append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(y)
+            .ticks(5)  // Set the number of ticks
+            .tickSize(-width)  // Length of grid lines
+            .tickFormat('')  // Hide the tick labels
+        )
+        .style('stroke', '#ccc')  // Grid line color
+        .style('stroke-width', '0.5px')
 
     // Draw boxplots
     boxData.forEach((d, index) => {
@@ -113,30 +121,6 @@ const updateBoxPlot = (boxPlot, svg, data, genres, color, boxWidth, height) => {
             .attr('y1', y(stats.median))
             .attr('y2', y(stats.median))
             .attr('stroke', 'black');
-    });
-
-    const legend = d3.select(boxPlot).select('.legend-container-box');
-    if (!legend.node()) {
-        // Create a container for the legend if it doesn't exist
-        d3.select(boxPlot)
-            .append('div')
-            .attr('class', 'legend-container-box')
-            .style('display', 'flex')
-            .style('justify-content', 'center')
-            .style('margin-top', '20px');
-    } else {
-        // Clear the existing legend content
-        legend.selectAll('*').remove();
-    }
-
-    boxData.forEach((genreObj, index) => {
-        legend.append('div')
-            .style('margin', '0 20px')
-            .style('font-size', '12px')
-            .html(`
-                        <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
-                        ${genreObj.genre}
-                    `);
     });
 };
 
