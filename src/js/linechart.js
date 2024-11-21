@@ -37,39 +37,34 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
     const maxValue = d3.max(allMetricValues);
 
     // Update y domain
-    y.domain([
-        minValue < 0 ? minValue * 2 : minValue,  // Multiply minValue by 1.5 only if it's negative
-        maxValue * 1.1  // Always multiply the max value by 1.1
-    ]);
+    y.domain([minValue < 0 ? minValue * 2 : 0, maxValue * 1.1]);
 
     // Clear previous paths and axes
     svg.selectAll('*').remove();
 
     // Create grid lines
-    // Add grid lines for the x-axis
     svg.append('g')
         .attr('class', 'grid')
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(x)
-            .ticks(5)  // Set the number of ticks
-            .tickSize(-height)  // Length of grid lines
-            .tickFormat('')  // Hide the tick labels
+            .ticks(5)
+            .tickSize(-height)
+            .tickFormat('')
         )
-        .style('stroke', '#ccc')  // Grid line color
+        .style('stroke', '#ccc')
         .style('stroke-width', '0.5px');
 
-    // Add grid lines for the y-axis
     svg.append('g')
         .attr('class', 'grid')
         .call(d3.axisLeft(y)
-            .ticks(5)  // Set the number of ticks
-            .tickSize(-width)  // Length of grid lines
-            .tickFormat('')  // Hide the tick labels
+            .ticks(5)
+            .tickSize(-width)
+            .tickFormat('')
         )
-        .style('stroke', '#ccc')  // Grid line color
-        .style('stroke-width', '0.5px')
+        .style('stroke', '#ccc')
+        .style('stroke-width', '0.5px');
 
-    // Render new lines
+    // Render new lines and points (circles for each data point)
     data.forEach((genreObj, index) => {
         const line = d3.line()
             .x(d => x(d.year))
@@ -81,6 +76,25 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .attr('stroke', color(index))
             .attr('stroke-width', 2)
             .attr('d', line);
+
+        svg.selectAll(`circle-${genreObj.genre}`)
+            .data(genreObj.data)
+            .enter()
+            .append('circle')
+            .attr('cx', d => x(d.year))
+            .attr('cy', d => y(d[metric]))
+            .attr('r', 4)
+            .attr('fill', color(index))
+            .on('click', (event, d) => {
+            const tooltip = d3.select('.tooltip');
+            tooltip.transition().duration(200).style('opacity', 1);  // Show tooltip
+            tooltip.html(`Genre: ${genreObj.genre}<br>Year: ${d.year}<br>${metric}: ${d[metric]}`)
+                .style('left', `${event.pageX + 10}px`)  // Position the tooltip slightly to the right of the cursor
+                .style('top', `${event.pageY + 10}px`); // Position the tooltip slightly below the cursor
+
+            // Prevent the event from bubbling up to the document click event
+            event.stopPropagation();
+            });
     });
 
     // Add axes
@@ -100,7 +114,6 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
     // Update legend
     const legend = d3.select(lineChart).select('.legend-container-line');
     if (!legend.node()) {
-        // Create a container for the legend if it doesn't exist
         d3.select(lineChart)
             .append('div')
             .attr('class', 'legend-container-line')
@@ -108,7 +121,6 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .style('justify-content', 'center')
             .style('margin-top', '20px');
     } else {
-        // Clear the existing legend content
         legend.selectAll('*').remove();
     }
 
@@ -117,11 +129,17 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .style('margin', '0 20px')
             .style('font-size', '12px')
             .html(`
-                        <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
-                        ${genreObj.genre}
-                    `);
+                <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
+                ${genreObj.genre}
+            `);
+    });
+
+    // Add event listener to hide tooltip when clicking anywhere outside the chart
+    d3.select(document).on('click', () => {
+        d3.select('.tooltip').transition().duration(200).style('opacity', 0);  // Hide tooltip
     });
 };
+
 
 const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
         const width = plot.clientWidth - margin.left - margin.right;
