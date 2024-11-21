@@ -164,7 +164,7 @@ body::-webkit-scrollbar-thumb {
 
 .card {
     width: 18rem;
-    min-height: 28rem;
+    min-height: 30rem;
 }
 
 .card .card-img-top {
