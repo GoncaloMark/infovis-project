@@ -16,7 +16,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
-    <script src="./js/movies.js"></script>
+    <script src="./js/movies.js" type="module"></script>
 
 </head>
 
@@ -125,16 +125,7 @@
                     <div class="w-100 h-75" id="lineGraph"></div>
                 </div>
                 <div class="content-item">
-                    <div class="justify-content-center align-items-center mt-3 w-100 text-center">
-                        <p class="ms-2 mb-1 fw-bold">
-                            Average Return On Investment (ROI)
-                            <span class="ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-                                title="Ex: an investment of $1000 with a profit of $200 has a ROI of 20%.">
-                                <i class="bi bi-info-circle" style="cursor: pointer;"></i>
-                            </span>
-                        </p>
-                    </div>
-                    <div class="w-100 h-75" id="boxPlot"></div>
+                    <svg id="lineGraph1" width="100%" height="100%"></svg>
                 </div>
                 <div class="content-item">
                     <svg id="lineGraph3" width="600" height="400"></svg>
@@ -152,7 +143,16 @@
             </div>
             <div class = "content">
                 <div class="content-item">
-                    <svg id="lineGraph1" width="100%" height="100%"></svg>
+                    <div class="justify-content-center align-items-center mt-3 w-100 text-center">
+                        <p class="ms-2 mb-1 fw-bold">
+                            Average Return On Investment (ROI)
+                            <span class="ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="Ex: an investment of $1000 with a profit of $200 has a ROI of 20%.">
+                                <i class="bi bi-info-circle" style="cursor: pointer;"></i>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="w-100 h-75" id="boxPlot"></div>
                 </div>
                 <div class="content-item">
                     <svg id="lineGraph2" width="100%" height="100%"></svg>
