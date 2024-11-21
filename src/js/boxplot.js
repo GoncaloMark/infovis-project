@@ -53,8 +53,9 @@ const initializeBoxPlot = (boxPlotElement, margin, width, height) => {
     return { svg };
 };
 
-const updateBoxPlot = (svg, data, genres, color, boxWidth, width, height) => {
+const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
     const boxData = getBoxplotData(data);
+    const genres = boxData.map(d => d.genre);
 
     // Clear previous elements
     svg.selectAll('*').remove();
@@ -67,31 +68,30 @@ const updateBoxPlot = (svg, data, genres, color, boxWidth, width, height) => {
     ]);
 
     // Draw axes
-    const xAxis = svg.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x));
-
-    xAxis.selectAll('text')
-        .style('font-size', '12px');
-
-    xAxis.selectAll('path, line')
-        .style('stroke', '#ccc');
+    const xAxis = d3.axisBottom(x);
+    const yAxis = d3.axisLeft(y);
 
     svg.append('g')
-        .call(d3.axisLeft(y))
-        .selectAll('path, line')
-        .style('stroke', '#ccc');
+        .attr('transform', `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('font-size', '12px');
+
+    svg.append('g')
+        .call(yAxis);
 
     // Add grid lines for the y-axis
     svg.append('g')
         .attr('class', 'grid')
-        .call(d3.axisLeft(y)
-            .ticks(5)  // Set the number of ticks
-            .tickSize(-width)  // Length of grid lines
-            .tickFormat('')  // Hide the tick labels
+        .call(
+            d3.axisLeft(y)
+                .ticks(5) // Set the number of ticks
+                .tickSize(-width) // Length of grid lines
+                .tickFormat('') // Hide the tick labels
         )
-        .style('stroke', '#ccc')  // Grid line color
-        .style('stroke-width', '0.5px')
+        .selectAll('line')
+        .style('stroke', '#ccc') // Grid line color
+        .style('stroke-width', '0.5px');
 
     // Draw boxplots
     boxData.forEach((d, index) => {
@@ -109,7 +109,7 @@ const updateBoxPlot = (svg, data, genres, color, boxWidth, width, height) => {
         svg.append('rect')
             .attr('x', x(genre) + x.bandwidth() / 2 - boxWidth / 2)
             .attr('y', y(stats.q3))
-            .attr('height', y(stats.q1) - y(stats.q3))
+            .attr('height', Math.max(0, y(stats.q1) - y(stats.q3))) // Prevent negative height
             .attr('width', boxWidth)
             .attr('stroke', 'black')
             .style('fill', color(index));
@@ -124,4 +124,21 @@ const updateBoxPlot = (svg, data, genres, color, boxWidth, width, height) => {
     });
 };
 
-export { initializeBoxPlot, updateBoxPlot };
+
+const updateBoxPlotWindow = (plot, svg, data, color, margin, boxWidth) => {
+    const width = plot.clientWidth - margin.left - margin.right;
+    const height = plot.clientHeight - margin.top - margin.bottom;
+
+    // Update the SVG dimensions
+    d3.select(plot).select('svg')
+        .attr('width', plot.clientWidth)
+        .attr('height', plot.clientHeight);
+
+    x.range([0, width]);
+    y.range([height, 0]);
+
+    // Update box plot with the new dimensions and scales
+    updateBoxPlot(svg, data, color, boxWidth, width, height);
+};
+
+export { initializeBoxPlot, updateBoxPlot, updateBoxPlotWindow };

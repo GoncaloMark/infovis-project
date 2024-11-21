@@ -1,3 +1,7 @@
+// Constants
+const x = d3.scaleLinear();
+const y = d3.scaleLinear();
+
 // Line Chart Initialization
 const initializeLineChart = (lineChartElement, margin, width, height) => {
     const svg = d3.select(lineChartElement)
@@ -14,10 +18,13 @@ const initializeLineChart = (lineChartElement, margin, width, height) => {
         .style('justify-content', 'center')
         .style('margin-top', '20px');
 
+    x.range([0, width]);
+    y.range([height, 0]);
+
     return { svg, legendContainer };
 };
 
-const updateLineChart = (lineChart, svg, data, metric, x, y, color, width, height) => {
+const updateLineChart = (lineChart, svg, data, metric, color, width, height) => {
     // Update x and y domains
     const allYears = data.flatMap(g => g.data.map(d => d.year));
     x.domain([d3.min(allYears), d3.max(allYears)]);
@@ -36,10 +43,7 @@ const updateLineChart = (lineChart, svg, data, metric, x, y, color, width, heigh
     ]);
 
     // Clear previous paths and axes
-    svg.selectAll('path').remove();
-    svg.selectAll('.x-axis').remove();
-    svg.selectAll('.y-axis').remove();
-    svg.selectAll('.grid').remove();  // Clear existing grid lines
+    svg.selectAll('*').remove();
 
     // Create grid lines
     // Add grid lines for the x-axis
@@ -119,4 +123,19 @@ const updateLineChart = (lineChart, svg, data, metric, x, y, color, width, heigh
     });
 };
 
-export { initializeLineChart, updateLineChart };
+const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
+        const width = plot.clientWidth - margin.left - margin.right;
+        const height = plot.clientHeight - margin.top - margin.bottom;
+
+        // Update the SVG dimensions
+        d3.select(plot).select('svg')
+            .attr('width', plot.clientWidth)
+            .attr('height', plot.clientHeight);
+
+        x.range([0, width]);
+        y.range([height, 0]);
+
+        updateLineChart(plot, svg, data, metric, color, width, height);
+}
+
+export { initializeLineChart, updateLineChart, updateLineChartWindow };

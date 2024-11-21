@@ -1,3 +1,8 @@
+// Scales
+const x = d3.scaleBand()
+    .padding(0.5);
+const y = d3.scaleLinear();
+
 // Bar Chart Initialization
 const initializeStackedBarChart = (stackedBarChartElement, margin, width, height) => {
     // Create the SVG container
@@ -8,23 +13,20 @@ const initializeStackedBarChart = (stackedBarChartElement, margin, width, height
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
+    x.range([0, width]);
+    y.range([height, 0]);
+
     return { svg };
 };
 
 // Update Bar Chart for Genre Data
-const updateStackedBarChart = (svg, genreData, labels, width, height, colorScheme) => {
+const updateStackedBarChart = (svg, genreData, labels, width, height) => {
     // Clear existing chart content
     svg.selectAll('*').remove();
 
-    // Create scales
-    const x = d3.scaleBand()
-        .domain(genreData.map(d => d.genre)) // Use genre names as x-axis
-        .range([0, width])
-        .padding(0.2);
-
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(genreData.flatMap(d => d.data.flatMap(yearData => yearData[labels[1]])))])
-        .range([height, 0]);
+    // Update scales
+    x.domain(genreData.map(d => d.genre));
+    y.domain([0, d3.max(genreData.flatMap(d => d.data.flatMap(yearData => yearData[labels[1]])))])
 
     const color = d3.scaleOrdinal()
         .domain(labels)
@@ -56,7 +58,7 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, colorSchem
             .tickFormat('')  // Hide the tick labels
         )
         .style('stroke', '#ccc')  // Grid line color
-        .style('stroke-width', '0.5px')
+        .style('stroke-width', '0.5px');
 
 
     // Draw bars for each genre
@@ -82,5 +84,20 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, colorSchem
         .attr('stroke-width', d => d.key === labels[1] ? 1 : 0); // Set border width
 };
 
+const updateStackedBarChartWindow = (plot, svg, data, labels, margin) => {
+    const width = plot.clientWidth - margin.left - margin.right;
+    const height = plot.clientHeight - margin.top - margin.bottom;
+
+    // Update the SVG dimensions
+    d3.select(plot).select('svg')
+        .attr('width', plot.clientWidth)
+        .attr('height', plot.clientHeight);
+
+    x.range([0, width]);
+    y.range([height, 0]);
+
+    updateStackedBarChart(svg, data, labels, width, height);
+};  
+
 // Export the functions for external use
-export { initializeStackedBarChart, updateStackedBarChart };
+export { initializeStackedBarChart, updateStackedBarChart, updateStackedBarChartWindow };
