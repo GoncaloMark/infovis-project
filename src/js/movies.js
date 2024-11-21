@@ -94,6 +94,15 @@ d3.csv('../../data/movies.csv').then(data => {
         updateLineChart(lineChart, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight);
         updateBoxPlot(svgBox, genreData, color, 40, boxPlotWidth, boxPlotHeight);
         updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, color);
+
+        // Add event listener to hide tooltip when clicking anywhere outside the chart
+        d3.selectAll('.tooltip').transition().duration(200).style('opacity', 0);
+        d3.select(document).on('click', () => {
+            // Hide tooltips for all types
+            d3.selectAll('.tooltip-line').transition().duration(200).style('opacity', 0);
+            d3.selectAll('.tooltip-box').transition().duration(200).style('opacity', 0);
+        });
+        
     };
 
     // Set up a resize event listener

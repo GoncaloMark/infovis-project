@@ -86,14 +86,20 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .attr('r', 4)
             .attr('fill', color(index))
             .on('click', (event, d) => {
-            const tooltip = d3.select('.tooltip');
+
+            const tooltip = d3.select('.tooltip-line');
             tooltip.transition().duration(200).style('opacity', 1);  // Show tooltip
-            tooltip.html(`Genre: ${genreObj.genre}<br>Year: ${d.year}<br>${metric}: ${d[metric]}`)
+            tooltip.html(`
+                <strong>Genre</strong>: ${genreObj.genre}<br>
+                <strong>Year</strong>: ${d.year}<br>
+                <strong>${metric}</strong>: ${d[metric]}
+                `)
                 .style('left', `${event.pageX + 10}px`)  // Position the tooltip slightly to the right of the cursor
                 .style('top', `${event.pageY + 10}px`); // Position the tooltip slightly below the cursor
 
             // Prevent the event from bubbling up to the document click event
             event.stopPropagation();
+            
             });
     });
 
@@ -132,11 +138,6 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
                 <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
                 ${genreObj.genre}
             `);
-    });
-
-    // Add event listener to hide tooltip when clicking anywhere outside the chart
-    d3.select(document).on('click', () => {
-        d3.select('.tooltip').transition().duration(200).style('opacity', 0);  // Hide tooltip
     });
 };
 

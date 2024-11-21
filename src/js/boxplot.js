@@ -62,10 +62,7 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
 
     // Update scales
     x.domain(genres);
-    y.domain([
-        d3.min(boxData.flatMap(d => [d.stats.min])) * 1.5,
-        d3.max(boxData.flatMap(d => [d.stats.max])) * 1.1
-    ]);
+    y.domain([d3.min(boxData.flatMap(d => [d.stats.min])) * 1.5, d3.max(boxData.flatMap(d => [d.stats.max])) * 1.1]);
 
     // Draw axes
     const xAxis = d3.axisBottom(x);
@@ -106,7 +103,7 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
             .attr('stroke', 'black');
 
         // Box
-        svg.append('rect')
+        const box = svg.append('rect')
             .attr('x', x(genre) + x.bandwidth() / 2 - boxWidth / 2)
             .attr('y', y(stats.q3))
             .attr('height', Math.max(0, y(stats.q1) - y(stats.q3))) // Prevent negative height
@@ -121,6 +118,31 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
             .attr('y1', y(stats.median))
             .attr('y2', y(stats.median))
             .attr('stroke', 'black');
+
+        // Add click event for tooltip
+        box.on('click', function (event) {
+
+            // Set tooltip content
+            const tooltipContent = `
+                <strong>Genre:</strong> ${genre}<br>
+                <strong>Max:</strong> ${stats.max}<br>
+                <strong>Q3:</strong> ${stats.q3}<br>
+                <strong>Median:</strong> ${stats.median}<br>
+                <strong>Q1:</strong> ${stats.q1}<br>
+                <strong>Min:</strong> ${stats.min}
+            `;
+
+            // Display the tooltip at the mouse position
+            const tooltip = d3.select('.tooltip-box');
+            tooltip.transition().duration(200).style('opacity', 1);  // Show tooltip
+            tooltip.html(tooltipContent)
+                .style('left', `${event.pageX + 10}px`)
+                .style('top', `${event.pageY + 10}px`)
+                .style('opacity', 1);
+
+            // Prevent the event from bubbling up to the document click event
+            event.stopPropagation();
+        });
     });
 };
 
