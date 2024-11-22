@@ -260,6 +260,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 #movieSidebar {
+    display: block; /* Ensure it is shown when not closed */
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
     z-index: 1050; /* Ensure it's above other elements */
     width: 550px;
@@ -267,6 +268,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 #movieSidebar.closed {
+    display: none; /* Fully remove from the layout */
     transform: translateX(100%);
     opacity: 0;
 }
