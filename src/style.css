@@ -261,6 +261,7 @@ body::-webkit-scrollbar-thumb {
     border-radius: 4px;
     opacity: 0;
     transition: opacity 0.2s;
+    pointer-events: none;
 }
 
 #movieSidebar {
@@ -273,6 +274,7 @@ body::-webkit-scrollbar-thumb {
 #movieSidebar.closed {
     transform: translateX(100%);
     opacity: 0;
+    display: none;
 }
 
 /* General button styles */
@@ -287,6 +289,7 @@ body::-webkit-scrollbar-thumb {
     border-bottom-right-radius: 0;
     background-color: #343a40;
     color: white;
+    display: block;
 }
 
 /* When sidebar is open, move button to the left */

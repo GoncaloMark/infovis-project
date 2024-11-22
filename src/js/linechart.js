@@ -87,6 +87,8 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .attr('fill', color(index))
             .on('click', (event, d) => {
 
+            console.log(genreObj.data)
+
                 const tooltip = d3.select('.tooltip-line');
                 tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
 

@@ -18,13 +18,16 @@ const initializeHorizontalBarChart = (chartElement, margin, width, height) => {
 };
 
 // Update Horizontal Bar Chart
-const updateHorizontalBarChart = (svg, data, width, height) => {
+const updateHorizontalBarChart = (svg, data, width, height, color) => {
     // Clear existing chart content
     svg.selectAll('*').remove();
     const processedData = data.map(d => ({
         genre: d.genre,
+        data: d.data,
         voteAvg: d3.mean(d.data, d => d.vote_average) // Get from params
     }));
+
+    // console.log(processedData)
 
     // Update scales
     const x = d3.scaleLinear()
@@ -35,10 +38,6 @@ const updateHorizontalBarChart = (svg, data, width, height) => {
         .domain(processedData.map(d => d.genre)) 
         .range([0, height]) 
         .padding(0.2); 
-
-    const color = d3.scaleOrdinal()
-        .domain(processedData.map(d => d.genre))
-        .range(['#007bff', '#28a745', '#dc3545', '#ffc107', '#6c757d']); // Get color from params
 
     const xAxis = svg.append('g')
         .attr('transform', `translate(0,${height})`)
@@ -59,6 +58,8 @@ const updateHorizontalBarChart = (svg, data, width, height) => {
     yAxis.selectAll('text')
         .style('font-size', '12px');
 
+    const tooltip = d3.select('body').select('.tooltip-bchart');
+
     // Add bars
     svg.selectAll('.bar')
         .data(processedData)
@@ -69,7 +70,57 @@ const updateHorizontalBarChart = (svg, data, width, height) => {
         .attr('y', d => y(d.genre)) 
         .attr('width', d => x(d.voteAvg))
         .attr('height', y.bandwidth()) 
-        .style('fill', d => color(d.genre)); 
+        .style('fill', (d, i) => color(i))
+        .on('click', (event, d) => {
+            console.log("CLICK")
+            tooltip.transition()
+                .duration(100)
+                .style('opacity', 1); // Show tooltip
+
+            tooltip.html(`
+                <strong>Genre:</strong> ${d.genre}<br>
+                <strong>Vote Average:</strong> ${d.voteAvg.toFixed(2)}
+            `)
+                .style('left', `${event.clientX + 10}px`) 
+                .style('top', `${event.clientY + 10}px`);
+
+                const tableHeader = `
+                <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Title</th>
+                </tr>`;
+            d3.select('#movieTableBody')
+                .html(''); // Clear the table body
+
+            d3.select('#movieTableHead')
+                .html(tableHeader); // Update the table header
+
+            // Populate the table with movies related to the data
+            const movies = d.data.flatMap(d => d.films); // Assuming `movies` is an array of movie data
+            console.log(movies)
+            // Sort the movies by the selected metric
+            const sortedMovies = movies.sort((a, b) => b['vote_average'] - a['vote_average']);
+            sortedMovies.forEach(movie => {
+                d3.select('#movieTableBody').append('tr').html(`
+                    <td>${movie.release_year}</td>
+                    <td>${movie.title}</td>
+                    <td>${movie['vote_average']}</td>
+                `);
+            });
+
+            // Update the title and subtitle
+            d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
+            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${d.genre}`);
+                
+
+            event.stopPropagation(); // Prevent event bubbling
+        });
+
+    d3.select('body').on('click', () => {
+        tooltip.transition()
+            .duration(200)
+            .style('opacity', 0); // Hide tooltip
+    });
 
     // Add grid lines 
     svg.append('g')

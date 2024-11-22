@@ -100,7 +100,7 @@ d3.csv('../../data/movies.csv').then(data => {
         updateLineChart(lineChart, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight);
         updateBoxPlot(svgBox, genreData, color, 40, boxPlotWidth, boxPlotHeight);
         console.log(genreData)
-        updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, color);
+        updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight);
         updateHorizontalBarChart(
             svgBar,
             genreData,
