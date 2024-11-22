@@ -87,51 +87,51 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .attr('fill', color(index))
             .on('click', (event, d) => {
 
-                const tooltip = d3.select('.tooltip-line');
-                tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
+            const tooltip = d3.select('.tooltip-line');
+            tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
 
-                tooltip
-                    .html(`
-                        <strong>Genre</strong>: ${genreObj.genre}<br>
-                        <strong>Year</strong>: ${d.year}<br>
-                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${d[metric]}
-                    `)
-                    .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
-                    .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
+            tooltip
+                .html(`
+                <strong>Genre</strong>: ${genreObj.genre}<br>
+                <strong>Year</strong>: ${d.year}<br>
+                ${metric !== 'films_released' ? `<strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${d[metric]}` : ''}
+                `)
+                .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
+                .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
 
-                // Prevent event bubbling
-                event.stopPropagation();
+            // Prevent event bubbling
+            event.stopPropagation();
 
-                // Update the table header
-                const tableHeader = `
-                    <tr>
-                        <th scope="col">Year</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">${metric.charAt(0).toUpperCase() + metric.slice(1)}</th>
-                    </tr>`;
-                d3.select('#movieTableBody')
-                    .html(''); // Clear the table body
+            // Update the table header
+            const tableHeader = `
+                <tr>
+                <th scope="col">Year</th>
+                <th scope="col">Title</th>
+                ${metric !== 'films_released' ? `<th scope="col">${metric.charAt(0).toUpperCase() + metric.slice(1)}</th>` : ''}
+                </tr>`;
+            d3.select('#movieTableBody')
+                .html(''); // Clear the table body
 
-                d3.select('#movieTableHead')
-                    .html(tableHeader); // Update the table header
+            d3.select('#movieTableHead')
+                .html(tableHeader); // Update the table header
 
-                // Populate the table with movies related to the data
-                const movies = d.films; // Assuming `movies` is an array of movie data
-                // Sort the movies by the selected metric
-                const sortedMovies = movies.sort((a, b) => b[metric] - a[metric]);
-                sortedMovies.forEach(movie => {
-                    d3.select('#movieTableBody').append('tr').html(`
-                        <td>${movie.release_year}</td>
-                        <td>${movie.title}</td>
-                        <td>${movie[metric]}</td>
-                    `);
-                });
+            // Populate the table with movies related to the data
+            const movies = d.films; // Assuming `movies` is an array of movie data
+            // Sort the movies by the selected metric
+            const sortedMovies = movies.sort((a, b) => b[metric] - a[metric]);
+            sortedMovies.forEach(movie => {
+                d3.select('#movieTableBody').append('tr').html(`
+                <td>${movie.release_year}</td>
+                <td>${movie.title}</td>
+                ${metric !== 'films_released' ? `<td>${movie[metric]}</td>` : ''}
+                `);
+            });
 
-                // Update the title and subtitle
-                d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
-                d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
-                // Update the year
-                d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
+            // Update the title and subtitle
+            d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
+            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
+            // Update the year
+            d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
             });
     });
 

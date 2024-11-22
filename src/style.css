@@ -95,7 +95,7 @@ body::-webkit-scrollbar-thumb {
     padding: 0;
     scrollbar-color: initial;
     flex-grow: 1;
-    width: 28vw;
+    width: 36vw;
     height: 100%;
 }
 
