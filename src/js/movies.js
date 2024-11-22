@@ -106,6 +106,8 @@ d3.csv('../../data/movies.csv').then(data => {
             genreData,
             barChartWidth,
             barChartHeight,
+            "vote_average",
+            "genre",
             color
         );
         
@@ -126,12 +128,7 @@ d3.csv('../../data/movies.csv').then(data => {
         updateBoxPlotWindow(boxPlot, svgBox, genreData, color, margin, 40);
         updateLineChartWindow(lineChart, svgLine, genreData, selectedMetric, color, margin);
         updateStackedBarChartWindow(stackedBarChart, svgStackedBar, genreData, ['budget', 'revenue'], margin);
-        updateHorizontalBarChartWindow(barChart, svgBar, genreData.map(d => ({
-            genre: d.genre,
-            popularity: d3.mean(d.data, g => g.popularity), // Modify for desired metric
-            revenue: d3.mean(d.data, g => g.revenue),
-            budget: d3.mean(d.data, g => g.budget),
-        })), margin)
+        updateHorizontalBarChartWindow(barChart, svgBar, genreData, margin, color)
     });
 
     // Initialize the filter bar

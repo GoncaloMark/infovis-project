@@ -18,24 +18,24 @@ const initializeHorizontalBarChart = (chartElement, margin, width, height) => {
 };
 
 // Update Horizontal Bar Chart
-const updateHorizontalBarChart = (svg, data, width, height, color) => {
+const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, color) => {
     // Clear existing chart content
     svg.selectAll('*').remove();
     const processedData = data.map(d => ({
-        genre: d.genre,
+        Y : d[y_axis],
         data: d.data,
-        voteAvg: d3.mean(d.data, d => d.vote_average) // Get from params
+        X: d3.mean(d.data, d => d[x_axis]) 
     }));
 
     // console.log(processedData)
 
     // Update scales
     const x = d3.scaleLinear()
-        .domain([0, d3.max(processedData, d => d.voteAvg)]) // Get max from params
+        .domain([0, d3.max(processedData, d => d.X)]) // Get max from params
         .range([0, width]);
 
     const y = d3.scaleBand()
-        .domain(processedData.map(d => d.genre)) 
+        .domain(processedData.map(d => d.Y)) 
         .range([0, height]) 
         .padding(0.2); 
 
@@ -67,8 +67,8 @@ const updateHorizontalBarChart = (svg, data, width, height, color) => {
         .append('rect')
         .attr('class', 'bar')
         .attr('x', 0) 
-        .attr('y', d => y(d.genre)) 
-        .attr('width', d => x(d.voteAvg))
+        .attr('y', d => y(d.Y)) 
+        .attr('width', d => x(d.X))
         .attr('height', y.bandwidth()) 
         .style('fill', (d, i) => color(i))
         .on('click', (event, d) => {
@@ -78,8 +78,8 @@ const updateHorizontalBarChart = (svg, data, width, height, color) => {
                 .style('opacity', 1); // Show tooltip
 
             tooltip.html(`
-                <strong>Genre:</strong> ${d.genre}<br>
-                <strong>Vote Average:</strong> ${d.voteAvg.toFixed(2)}
+                <strong>Genre:</strong> ${d.Y}<br>
+                <strong>Vote Average:</strong> ${d.X.toFixed(2)}
             `)
                 .style('left', `${event.clientX + 10}px`) 
                 .style('top', `${event.clientY + 10}px`);
@@ -104,13 +104,13 @@ const updateHorizontalBarChart = (svg, data, width, height, color) => {
                 d3.select('#movieTableBody').append('tr').html(`
                     <td>${movie.release_year}</td>
                     <td>${movie.title}</td>
-                    <td>${movie['vote_average']}</td>
+                    <td>${movie[x_axis]}</td>
                 `);
             });
 
             // Update the title and subtitle
             d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
-            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${d.genre}`);
+            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${d.Y}`);
                 
 
             event.stopPropagation(); // Prevent event bubbling
@@ -135,7 +135,7 @@ const updateHorizontalBarChart = (svg, data, width, height, color) => {
 };
 
 // Responsive Chart Update
-const updateHorizontalBarChartWindow = (plot, svg, data, margin) => {
+const updateHorizontalBarChartWindow = (plot, svg, data, margin, color) => {
     const width = plot.clientWidth - margin.left - margin.right;
     const height = plot.clientHeight - margin.top - margin.bottom;
 
@@ -147,7 +147,7 @@ const updateHorizontalBarChartWindow = (plot, svg, data, margin) => {
     x.range([0, width]);
     y.range([0, height]);
 
-    updateHorizontalBarChart(svg, data, width, height);
+    updateHorizontalBarChart(svg, data, width, height, "vote_average", "genre", color);
 };
 
 export {
