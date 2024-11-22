@@ -11,8 +11,9 @@ body {
     flex-direction: column;
     overflow-x: auto;
     margin: 0;
-    margin-left: 250px;
     height: 100vh;
+    margin-right: 1rem;
+    margin-left: 250px;
 }
 
 body::-webkit-scrollbar {
@@ -89,14 +90,15 @@ body::-webkit-scrollbar-thumb {
 }
 
 .filter-bar {
+    position: fixed;
     display: flex;
     flex-direction: column;
     color: white;
     padding: 0;
     scrollbar-color: initial;
     flex-grow: 1;
-    width: 28vw;
-    height: 100%;
+    width: 20vw;
+    height: 90%;
 }
 
 .filter-bar .search {
@@ -149,6 +151,7 @@ body::-webkit-scrollbar-thumb {
     flex: 0 0 auto;
     display: flex;
     gap: 1rem;
+    margin-left: 25vw;
 }
 
 .content-item {
@@ -160,6 +163,7 @@ body::-webkit-scrollbar-thumb {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     border-radius: 50px;
     padding: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .card {

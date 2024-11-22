@@ -1,89 +1,106 @@
-function barChart(path, labels, groups) {
-    // Load the CSV file
-    d3.csv(path).then(data => {
-        // Parse numeric values for specified labels
-        data.forEach(d => {
-            labels.forEach(label => {
-                d[label] = +d[label];
-            });
-        });
+const x = d3.scaleLinear();
+const y = d3.scaleBand().padding(0.5);
 
-        // Filter data to only include rows matching the groups (director names)
-        const filteredData = data.filter(d => groups.includes(d.director_name));
+// Horizontal Bar Chart Initialization
+const initializeHorizontalBarChart = (chartElement, margin, width, height) => {
+    // Create container
+    const svg = d3.select(chartElement)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left+10},${margin.top})`);
 
-        // Aggregate data by director_name
-        const aggregatedData = groups.map(group => {
-            const groupData = filteredData.filter(d => d.director_name === group);
-            const aggregatedValues = {};
-            labels.forEach(label => {
-                aggregatedValues[label] = d3.sum(groupData, d => d[label]);
-            });
-            return { group, ...aggregatedValues };
-        });
+    x.range([0, width]);
+    y.range([0, height]);
 
-        // Set up dimensions and margins
-        const barChart = document.getElementById('barChart');
-        const margin = { top: 20, right: 30, bottom: 50, left: 80 };
-        const width = barChart.clientWidth - margin.left - margin.right;
-        const height = barChart.clientHeight - margin.top - margin.bottom;
+    return { svg };
+};
 
-        // Compute max domain dynamically
-        const max_dom = d3.max(aggregatedData.flatMap(d => labels.map(label => d[label])));
+// Update Horizontal Bar Chart
+const updateHorizontalBarChart = (svg, data, width, height) => {
+    // Clear existing chart content
+    svg.selectAll('*').remove();
+    const processedData = data.map(d => ({
+        genre: d.genre,
+        voteAvg: d3.mean(d.data, d => d.vote_average) // Get from params
+    }));
 
-        // Create the SVG container
-        const svg = d3.select(barChart)
-            .append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+    // Update scales
+    const x = d3.scaleLinear()
+        .domain([0, d3.max(processedData, d => d.voteAvg)]) // Get max from params
+        .range([0, width]);
 
-        // Create scales
-        const x = d3.scaleBand()
-            .domain(groups) // Use the provided groups (director names)
-            .range([0, width])
-            .padding(0.2);
+    const y = d3.scaleBand()
+        .domain(processedData.map(d => d.genre)) 
+        .range([0, height]) 
+        .padding(0.2); 
 
-        const y = d3.scaleLinear()
-            .domain([0, max_dom])
-            .range([height, 0]);
+    const color = d3.scaleOrdinal()
+        .domain(processedData.map(d => d.genre))
+        .range(['#007bff', '#28a745', '#dc3545', '#ffc107', '#6c757d']); // Get color from params
 
-        const xSubgroup = d3.scaleBand()
-            .domain(labels) // Use labels for subgroups
-            .range([0, x.bandwidth()])
-            .padding(0.05);
+    const xAxis = svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(5));
 
-        const color = d3.scaleOrdinal()
-            .domain(labels)
-            .range(d3.schemeCategory10); // Dynamic color scheme
+    xAxis.selectAll('path, line')
+        .style('stroke', '#ccc');
 
-        // Add X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .selectAll("text")
-            .attr("transform", "rotate(-30)")
-            .style("text-anchor", "end");
+    xAxis.selectAll('text')
+        .style('font-size', '12px');
 
-        // Add Y axis
-        svg.append("g")
-            .call(d3.axisLeft(y));
+    const yAxis = svg.append('g')
+        .call(d3.axisLeft(y));
 
-        // Draw bars
-        svg.append("g")
-            .selectAll("g")
-            .data(aggregatedData)
-            .enter()
-            .append("g")
-            .attr("transform", d => `translate(${x(d.group)},0)`)
-            .selectAll("rect")
-            .data(d => labels.map(label => ({ key: label, value: d[label] })))
-            .enter()
-            .append("rect")
-            .attr("x", d => xSubgroup(d.key))
-            .attr("y", d => y(d.value))
-            .attr("width", xSubgroup.bandwidth())
-            .attr("height", d => height - y(d.value))
-            .attr("fill", d => color(d.key));
-    });
-}
+    yAxis.selectAll('path, line')
+        .style('stroke', '#ccc');
+
+    yAxis.selectAll('text')
+        .style('font-size', '12px');
+
+    // Add bars
+    svg.selectAll('.bar')
+        .data(processedData)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', 0) 
+        .attr('y', d => y(d.genre)) 
+        .attr('width', d => x(d.voteAvg))
+        .attr('height', y.bandwidth()) 
+        .style('fill', d => color(d.genre)); 
+
+    // Add grid lines 
+    svg.append('g')
+        .attr('class', 'grid')
+        .call(d3.axisBottom(x)
+            .ticks(5) 
+            .tickSize(height) 
+            .tickFormat('') 
+        )
+        .style('stroke', '#ccc') 
+        .style('stroke-width', '0.5px');
+};
+
+// Responsive Chart Update
+const updateHorizontalBarChartWindow = (plot, svg, data, margin) => {
+    const width = plot.clientWidth - margin.left - margin.right;
+    const height = plot.clientHeight - margin.top - margin.bottom;
+
+    // Update the SVG dimensions
+    d3.select(plot).select('svg')
+        .attr('width', plot.clientWidth)
+        .attr('height', plot.clientHeight);
+
+    x.range([0, width]);
+    y.range([0, height]);
+
+    updateHorizontalBarChart(svg, data, width, height);
+};
+
+export {
+    initializeHorizontalBarChart,
+    updateHorizontalBarChart,
+    updateHorizontalBarChartWindow
+};

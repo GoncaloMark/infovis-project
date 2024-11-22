@@ -2,6 +2,7 @@ import { initializeFilterBar } from './filterBar.js';
 import { initializeLineChart, updateLineChart, updateLineChartWindow } from './linechart.js';
 import { initializeBoxPlot, updateBoxPlot, updateBoxPlotWindow } from './boxplot.js';
 import { initializeStackedBarChart, updateStackedBarChart, updateStackedBarChartWindow } from './stackedbarchart.js';
+import { initializeHorizontalBarChart, updateHorizontalBarChart, updateHorizontalBarChartWindow} from './barchart.js'
 
 d3.csv('../../data/movies.csv').then(data => {
     // Get unique genres and year range
@@ -53,9 +54,13 @@ d3.csv('../../data/movies.csv').then(data => {
     const lineChart = document.getElementById('lineGraph');
     const boxPlot = document.getElementById('boxPlot');
     const stackedBarChart = document.getElementById('stackedBarChart');
+    const barChart = document.getElementById('barChart');
 
     // Define margin for all charts
     const margin = { top: 20, right: 30, bottom: 20, left: 70 };
+
+    const barChartWidth = barChart.clientWidth - margin.left - margin.right;
+    const barChartHeight = barChart.clientHeight - margin.top - margin.bottom;
 
     // Calculate width and height for each chart
     const lineChartWidth = lineChart.clientWidth - margin.left - margin.right;
@@ -75,6 +80,7 @@ d3.csv('../../data/movies.csv').then(data => {
     const { svg: svgLine } = initializeLineChart(lineChart, margin, lineChartWidth, lineChartHeight, color);
     const { svg: svgBox } = initializeBoxPlot(boxPlot, margin, boxPlotWidth, boxPlotHeight);
     const { svg: svgStackedBar } = initializeStackedBarChart(stackedBarChart, margin, stackedBarChartWidth, stackedBarChartHeight);
+    const { svg: svgBar } = initializeHorizontalBarChart(barChart, margin, barChartWidth, barChartHeight);
 
     // Generate initial genre data
     var genreData = getGenreData(genres.slice(0, 3), data, yearsRange.minYear, yearsRange.maxYear);
@@ -93,7 +99,16 @@ d3.csv('../../data/movies.csv').then(data => {
 
         updateLineChart(lineChart, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight);
         updateBoxPlot(svgBox, genreData, color, 40, boxPlotWidth, boxPlotHeight);
+        console.log(genreData)
         updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, color);
+        updateHorizontalBarChart(
+            svgBar,
+            genreData,
+            barChartWidth,
+            barChartHeight,
+            color
+        );
+        
 
         // Add event listener to hide tooltip when clicking anywhere outside the chart
         d3.selectAll('.tooltip').transition().duration(200).style('opacity', 0);
@@ -111,6 +126,12 @@ d3.csv('../../data/movies.csv').then(data => {
         updateBoxPlotWindow(boxPlot, svgBox, genreData, color, margin, 40);
         updateLineChartWindow(lineChart, svgLine, genreData, selectedMetric, color, margin);
         updateStackedBarChartWindow(stackedBarChart, svgStackedBar, genreData, ['budget', 'revenue'], margin);
+        updateHorizontalBarChartWindow(barChart, svgBar, genreData.map(d => ({
+            genre: d.genre,
+            popularity: d3.mean(d.data, g => g.popularity), // Modify for desired metric
+            revenue: d3.mean(d.data, g => g.revenue),
+            budget: d3.mean(d.data, g => g.budget),
+        })), margin)
     });
 
     // Initialize the filter bar
