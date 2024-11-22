@@ -87,19 +87,51 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .attr('fill', color(index))
             .on('click', (event, d) => {
 
-            const tooltip = d3.select('.tooltip-line');
-            tooltip.transition().duration(200).style('opacity', 1);  // Show tooltip
-            tooltip.html(`
-                <strong>Genre</strong>: ${genreObj.genre}<br>
-                <strong>Year</strong>: ${d.year}<br>
-                <strong>${metric}</strong>: ${d[metric]}
-                `)
-                .style('left', `${event.pageX + 10}px`)  // Position the tooltip slightly to the right of the cursor
-                .style('top', `${event.pageY + 10}px`); // Position the tooltip slightly below the cursor
+                const tooltip = d3.select('.tooltip-line');
+                tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
 
-            // Prevent the event from bubbling up to the document click event
-            event.stopPropagation();
-            
+                tooltip
+                    .html(`
+                        <strong>Genre</strong>: ${genreObj.genre}<br>
+                        <strong>Year</strong>: ${d.year}<br>
+                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${d[metric]}
+                    `)
+                    .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
+                    .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
+
+                // Prevent event bubbling
+                event.stopPropagation();
+
+                // Update the table header
+                const tableHeader = `
+                    <tr>
+                        <th scope="col">Year</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">${metric.charAt(0).toUpperCase() + metric.slice(1)}</th>
+                    </tr>`;
+                d3.select('#movieTableBody')
+                    .html(''); // Clear the table body
+
+                d3.select('#movieTableHead')
+                    .html(tableHeader); // Update the table header
+
+                // Populate the table with movies related to the data
+                const movies = d.films; // Assuming `movies` is an array of movie data
+                // Sort the movies by the selected metric
+                const sortedMovies = movies.sort((a, b) => b[metric] - a[metric]);
+                sortedMovies.forEach(movie => {
+                    d3.select('#movieTableBody').append('tr').html(`
+                        <td>${movie.release_year}</td>
+                        <td>${movie.title}</td>
+                        <td>${movie[metric]}</td>
+                    `);
+                });
+
+                // Update the title and subtitle
+                d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
+                d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
+                // Update the year
+                d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
             });
     });
 
@@ -143,18 +175,18 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
 
 
 const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
-        const width = plot.clientWidth - margin.left - margin.right;
-        const height = plot.clientHeight - margin.top - margin.bottom;
+    const width = plot.clientWidth - margin.left - margin.right;
+    const height = plot.clientHeight - margin.top - margin.bottom;
 
-        // Update the SVG dimensions
-        d3.select(plot).select('svg')
-            .attr('width', plot.clientWidth)
-            .attr('height', plot.clientHeight);
+    // Update the SVG dimensions
+    d3.select(plot).select('svg')
+        .attr('width', plot.clientWidth)
+        .attr('height', plot.clientHeight);
 
-        x.range([0, width]);
-        y.range([height, 0]);
+    x.range([0, width]);
+    y.range([height, 0]);
 
-        updateLineChart(plot, svg, data, metric, color, width, height);
+    updateLineChart(plot, svg, data, metric, color, width, height);
 }
 
 export { initializeLineChart, updateLineChart, updateLineChartWindow };

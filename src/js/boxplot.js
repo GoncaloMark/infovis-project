@@ -142,6 +142,50 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
 
             // Prevent the event from bubbling up to the document click event
             event.stopPropagation();
+
+            // Update the table header
+            const tableHeader = `
+                <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">ROI (%)</th>
+                    <th scope="col">Budget ($)</th>
+                    <th scope="col">Revenue ($)</th>
+                </tr>`;
+            d3.select('#movieTableBody')
+                .html(''); // Clear the table body
+
+            d3.select('#movieTableHead')
+                .html(tableHeader); // Update the table header
+
+            // Populate the table with movies related to the data
+            console.log(genre);
+            console.log(data);
+            const genreObj = data.find(d => d.genre === genre);
+            console.log(genreObj);
+
+            // Unpack the movies from the genre object, and sort them by the roi metric
+            const movies = genreObj.data.flatMap(d => d.films);
+            // Sort the movies by the selected metric
+            const sortedMovies = movies.sort((a, b) => b['roi'] - a['roi']);
+            sortedMovies.forEach(movie => {
+                d3.select('#movieTableBody').append('tr').html(`
+                <td>${movie.release_year}</td>
+                <td>${movie.title}</td>
+                <td>${movie['roi']}</td>
+                <td>${movie['budget']}</td>
+                <td>${movie['revenue']}</td>
+            `);
+            });
+
+            // Update the title and subtitle
+            d3.select('#movieSidebar h5').html('<strong>Box Plot - Movie Details</strong>');
+            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
+            // Update the year range
+            const years = genreObj.data.map(d => d.year);
+            const minYear = d3.min(years);
+            const maxYear = d3.max(years);
+            d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${minYear} - ${maxYear}</em>`).style('margin', '0');
         });
     });
 };
