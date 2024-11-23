@@ -43,9 +43,11 @@ const updateStackedBarChart = (svg, genreData, labels, width, height) => {
     xAxis.selectAll('path, line')
         .style('stroke', '#ccc');
 
+    const yAxis = d3.axisLeft(y).tickFormat(d => `$${d}`);
+
     // Add Y axis
     svg.append('g')
-        .call(d3.axisLeft(y))
+        .call(yAxis)
         .selectAll('path, line')
         .style('stroke', '#ccc');
 

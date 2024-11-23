@@ -35,6 +35,14 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
     // Calculate the min and max of the metric values
     const minValue = d3.min(allMetricValues);
     const maxValue = d3.max(allMetricValues);
+    console.log(metric)
+    let append = ''
+    switch(metric){
+        case 'budget':
+        case 'revenue':
+            append = "$";
+            break;
+    }
 
     // Update y domain
     y.domain([minValue < 0 ? minValue * 2 : 0, maxValue * 1.1]);
@@ -96,7 +104,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
                     .html(`
                         <strong>Genre</strong>: ${genreObj.genre}<br>
                         <strong>Year</strong>: ${d.year}<br>
-                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${d[metric]}
+                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${append}${d[metric].toFixed(2)}
                     `)
                     .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
                     .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
@@ -125,7 +133,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
                     d3.select('#movieTableBody').append('tr').html(`
                         <td>${movie.release_year}</td>
                         <td>${movie.title}</td>
-                        <td>${movie[metric]}</td>
+                        <td>${append}${movie[metric]}</td>
                     `);
                 });
 
@@ -147,7 +155,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
 
     svg.append('g')
         .attr('class', 'y-axis')
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(y).tickFormat(d => `${append + d}`))
         .selectAll('path, line')
         .style('stroke', '#ccc');
 
