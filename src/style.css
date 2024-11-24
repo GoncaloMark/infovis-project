@@ -166,6 +166,10 @@ body::-webkit-scrollbar-thumb {
     margin-bottom: 1.5rem;
 }
 
+.content:last-child > .content-item {
+    margin-bottom: 0;
+}
+
 .card {
     width: 18rem;
     min-height: 30rem;
