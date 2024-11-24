@@ -20,17 +20,13 @@ const initializeStackedBarChart = (stackedBarChartElement, margin, width, height
 };
 
 // Update Bar Chart for Genre Data
-const updateStackedBarChart = (svg, genreData, labels, width, height, prop) => {
+const updateStackedBarChart = (svg, genreData, labels, width, height, prop, color) => {
     // Clear existing chart content
     svg.selectAll('*').remove();
 
     // Update scales
     x.domain(genreData.map(d => d[prop]));
-    y.domain([0, d3.max(genreData.flatMap(d => d.data.flatMap(yearData => yearData[labels[1]])))])
-
-    const color = d3.scaleOrdinal()
-        .domain(labels)
-        .range(['black', 'white']);
+    y.domain([0, d3.max(genreData.flatMap(d => d.data.flatMap(yearData => yearData[labels[1]])))]);
 
     // Draw axes
     const xAxis = svg.append('g')
@@ -62,7 +58,6 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop) => {
         .style('stroke', '#ccc')  // Grid line color
         .style('stroke-width', '0.5px');
 
-
     // Draw bars for each genre
     svg.append('g')
         .selectAll('g')
@@ -71,9 +66,11 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop) => {
         .append('g')
         .attr('transform', d => `translate(${x(d[prop])},0)`)
         .selectAll('rect')
-        .data(d => labels.map(label => ({
+        .data((d, clusterIndex) => labels.map((label, barIndex) => ({
             key: label,
-            value: d3.mean(d.data, yearData => yearData[label])
+            value: d3.mean(d.data, yearData => yearData[label]),
+            clusterIndex, // Pass the cluster index for color mapping
+            barIndex, // Pass the bar index to decide lighter or darker
         })))
         .enter()
         .append('rect')
@@ -81,12 +78,19 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop) => {
         .attr('y', d => y(d.value))
         .attr('width', x.bandwidth() / labels.length)
         .attr('height', d => height - y(d.value))
-        .attr('fill', d => color(d.key))
-        .attr('stroke', d => d.key === labels[1] ? 'black' : 'none') // Add border to rectangles of the second label
-        .attr('stroke-width', d => d.key === labels[1] ? 1 : 0); // Set border width
+        .attr('fill', d => {
+            const baseColor = d3.color(color(d.clusterIndex)); // Get color for the cluster
+            if (d.barIndex === 0) {
+                // Lighten the color for the second bar
+                baseColor.opacity = 0.6;
+                return baseColor.toString();
+            }
+            return baseColor.toString(); // Normal color for the first bar
+        })
+        .attr('stroke', 'none'); // Remove border (optional, adjust as needed)
 };
 
-const updateStackedBarChartWindow = (plot, svg, data, labels, margin, prop) => {
+const updateStackedBarChartWindow = (plot, svg, data, labels, margin, prop, color) => {
     const width = plot.clientWidth - margin.left - margin.right;
     const height = plot.clientHeight - margin.top - margin.bottom;
 
@@ -98,7 +102,7 @@ const updateStackedBarChartWindow = (plot, svg, data, labels, margin, prop) => {
     x.range([0, width]);
     y.range([height, 0]);
 
-    updateStackedBarChart(svg, data, labels, width, height, prop);
+    updateStackedBarChart(svg, data, labels, width, height, prop, color );
 };  
 
 // Export the functions for external use
