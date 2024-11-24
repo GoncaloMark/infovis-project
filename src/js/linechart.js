@@ -144,7 +144,14 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
                 d3.select('#movieSidebar').select('h5').append('h6').text(`${label}: ${genreObj[label]}`);
                 // Update the year
                 d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
+
+                d3.select('body').on('click', () => {
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 0);
+                });
             });
+            
     });
 
     // Add axes

@@ -101,7 +101,7 @@ d3.csv('../../data/movies.csv').then(data => {
 
         updateLineChart(lineChart, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight, "genre");
         updateBoxPlot(svgBox, genreData, color, 40, boxPlotWidth, boxPlotHeight, "genre");
-        updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight);
+        updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, "genre");
         updateHorizontalBarChart(
             svgBar,
             genreData,
@@ -128,7 +128,7 @@ d3.csv('../../data/movies.csv').then(data => {
         const selectedMetric = document.getElementById('metricDropdown').value;
         updateBoxPlotWindow(boxPlot, svgBox, genreData, color, margin, 40, "genre");
         updateLineChartWindow(lineChart, svgLine, genreData, selectedMetric, color, margin, "genre");
-        updateStackedBarChartWindow(stackedBarChart, svgStackedBar, genreData, ['budget', 'revenue'], margin);
+        updateStackedBarChartWindow(stackedBarChart, svgStackedBar, genreData, ['budget', 'revenue'], margin, "genre");
         updateHorizontalBarChartWindow(barChart, svgBar, genreData, margin, color)
     });
 

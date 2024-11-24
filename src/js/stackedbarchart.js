@@ -20,12 +20,12 @@ const initializeStackedBarChart = (stackedBarChartElement, margin, width, height
 };
 
 // Update Bar Chart for Genre Data
-const updateStackedBarChart = (svg, genreData, labels, width, height) => {
+const updateStackedBarChart = (svg, genreData, labels, width, height, prop) => {
     // Clear existing chart content
     svg.selectAll('*').remove();
 
     // Update scales
-    x.domain(genreData.map(d => d.genre));
+    x.domain(genreData.map(d => d[prop]));
     y.domain([0, d3.max(genreData.flatMap(d => d.data.flatMap(yearData => yearData[labels[1]])))])
 
     const color = d3.scaleOrdinal()
@@ -69,7 +69,7 @@ const updateStackedBarChart = (svg, genreData, labels, width, height) => {
         .data(genreData)
         .enter()
         .append('g')
-        .attr('transform', d => `translate(${x(d.genre)},0)`)
+        .attr('transform', d => `translate(${x(d[prop])},0)`)
         .selectAll('rect')
         .data(d => labels.map(label => ({
             key: label,
@@ -86,7 +86,7 @@ const updateStackedBarChart = (svg, genreData, labels, width, height) => {
         .attr('stroke-width', d => d.key === labels[1] ? 1 : 0); // Set border width
 };
 
-const updateStackedBarChartWindow = (plot, svg, data, labels, margin) => {
+const updateStackedBarChartWindow = (plot, svg, data, labels, margin, prop) => {
     const width = plot.clientWidth - margin.left - margin.right;
     const height = plot.clientHeight - margin.top - margin.bottom;
 
@@ -98,7 +98,7 @@ const updateStackedBarChartWindow = (plot, svg, data, labels, margin) => {
     x.range([0, width]);
     y.range([height, 0]);
 
-    updateStackedBarChart(svg, data, labels, width, height);
+    updateStackedBarChart(svg, data, labels, width, height, prop);
 };  
 
 // Export the functions for external use
