@@ -66,7 +66,7 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
 
     // Draw axes
     const xAxis = d3.axisBottom(x);
-    const yAxis = d3.axisLeft(y).tickFormat(d => `$${d}`);
+    const yAxis = d3.axisLeft(y).tickFormat(d => `${d}%`);
 
     svg.append('g')
         .attr('transform', `translate(0,${height})`)

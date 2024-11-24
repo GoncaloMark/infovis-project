@@ -71,7 +71,7 @@ function transformDirectorToGenre(rawData, label) {
                             data.push({
                                 [label]: director,
                                 genre: genre,
-                                value: 1 
+                                value: 1
                             });
                         });
                     }
@@ -87,7 +87,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
     const sankey = d3.sankey()
         .nodeWidth(15) // Set the desired node width
         .nodePadding(10) // Set the padding between nodes
-        .extent([[1, 1], [width - 1, height - 5]]); 
+        .extent([[1, 1], [width - 1, height - 5]]);
 
     const directorToGenre = transformDirectorToGenre(data, label);
     const sankeyData = processSankeyData(directorToGenre, srcKey, "genre", label);
@@ -109,9 +109,12 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
         .attr("class", "sankey-link")
         .merge(link)
         .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke", "#666") // Base stroke color
         .attr("stroke-width", d => Math.max(1, d.width))
-        .attr("stroke", "#ddd")
-        .attr("fill", "none");
+        .attr("fill", "none")
+        .style("mix-blend-mode", "multiply") // Enable blend mode
+        .style("opacity", 0.1); // Make links slightly transparent
+
 
     link.exit().remove();
 
@@ -129,8 +132,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
         .attr("y", d => d.y0)
         .attr("height", d => d.y1 - d.y0)
         .attr("width", sankey.nodeWidth())
-        .attr("fill", (d, i) => color(i))
-        .attr("stroke", "#000");
+        .attr("fill", (d, i) => color(i));
 
     nodeEnter
         .append("text")
