@@ -13,13 +13,13 @@ function initializeSankeyChart(container, margin, width, height) {
     return { svg };
 }
 
-function processSankeyData(rawData, sourceKey, targetKey) {
+function processSankeyData(rawData, sourceKey, targetKey, label) {
     const nodes = [];
     const nodeIndex = new Map();
 
     const flattenedData = rawData.flatMap(d => {
         return {
-            [sourceKey]: d.director,
+            [sourceKey]: d[label],
             [targetKey]: d.genre,
             value: d.value || 1
         }
@@ -54,11 +54,12 @@ function processSankeyData(rawData, sourceKey, targetKey) {
     return { nodes, links };
 }
 
-function transformDirectorToGenre(rawData) {
+function transformDirectorToGenre(rawData, label) {
     const data = [];
 
     rawData.forEach(directorEntry => {
-        const director = directorEntry.director;
+        const director = directorEntry[label];
+        // console.log(directorEntry)
 
         directorEntry.data.forEach(filmData => {
             if (filmData.films && Array.isArray(filmData.films)) {
@@ -68,7 +69,7 @@ function transformDirectorToGenre(rawData) {
 
                         genres.forEach(genre => {
                             data.push({
-                                director: director,
+                                [label]: director,
                                 genre: genre,
                                 value: 1 
                             });
@@ -82,14 +83,16 @@ function transformDirectorToGenre(rawData) {
     return data;
 }
 
-function updateSankeyChart(svg, data, width, height, color) {
+function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
     const sankey = d3.sankey()
         .nodeWidth(15) // Set the desired node width
         .nodePadding(10) // Set the padding between nodes
         .extent([[1, 1], [width - 1, height - 5]]); 
 
-    const directorToGenre = transformDirectorToGenre(data);
-    const sankeyData = processSankeyData(directorToGenre, "director", "genre");
+    const directorToGenre = transformDirectorToGenre(data, label);
+    const sankeyData = processSankeyData(directorToGenre, srcKey, "genre", label);
+
+    console.log(directorToGenre)
 
     const sankeyLayout = sankey({
         nodes: sankeyData.nodes.map(d => ({ ...d })),
@@ -146,7 +149,7 @@ function updateSankeyChart(svg, data, width, height, color) {
 
 
 
-function updateSankeyChartWindow(container, svg, data, color, margin) {
+function updateSankeyChartWindow(container, svg, data, color, margin, label, srcKey) {
     const width = container.clientWidth - margin.left - margin.right;
     const height = container.clientHeight - margin.top - margin.bottom;
 
@@ -154,7 +157,7 @@ function updateSankeyChartWindow(container, svg, data, color, margin) {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
-    updateSankeyChart(svg, data, width, height, color);
+    updateSankeyChart(svg, data, width, height, color, label, srcKey);
 }
 
 export { initializeSankeyChart, updateSankeyChart, updateSankeyChartWindow };

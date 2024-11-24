@@ -97,7 +97,8 @@ d3.csv('../../data/movies.csv').then(data => {
             directorData,
             sankeyWidth,
             sankeyHeight,
-            color
+            color,
+            "director", "director"
         );
         
 
@@ -117,7 +118,7 @@ d3.csv('../../data/movies.csv').then(data => {
         updateBoxPlotWindow(boxPlot, svgBox, directorData, color, margin, 40, "director");
         updateLineChartWindow(lineChart, svgLine, directorData, selectedMetric, color, margin, "director");
         updateStackedBarChartWindow(stackedBarChart, svgStackedBar, directorData, ['budget', 'revenue'], margin, "director");
-        updateSankeyChartWindow(sankey, svgSankey, directorData, color, margin )
+        updateSankeyChartWindow(sankey, svgSankey, directorData, color, margin, "director", "director")
     });
 
     // Initialize the filter bar

@@ -9,10 +9,14 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script type="text/javascript" src="http://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
 </head>
 
 <body>
@@ -66,56 +70,104 @@
             <p class="mt-4">Universidade de Aveiro 2024/25</p>
         </div>
     </div>
-
-    <!-- Main Content -->
-    <div class="content">
-
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="search">
-                <div class="input-group">
-                    <span class="input-group-text" id="actorSearch">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input class="form-control" type="text" id="search" placeholder="Search for an actor..."
-                        aria-describedby="actorSearch">
+    <!-- Filter Bar -->
+    <div class="filter-bar justify-content-between">
+        <div class="genres mt-0" style="height: 80%;">
+            <!-- Genre List-->
+            <ul class="genre-list list-group" id="genreList">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <button class="btn btn-outline-custom w-100" type="button" id="uncheckAll">Uncheck All</button>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-0">
+                    <p class="w-100 text-center m-0 selectedLimit" id="selectedLimit"><em>3 of 5 selected</em></p>
+            </ul>
+        </div>
+        <div class="time-select-slider text-center text-dark">
+            <div id="slider-range" class="mx-auto"></div>
+            <div class="d-flex justify-content-between mt-3">
+                <input type="number" id="minYear" class="form-control" value="1970" min="1970" max="2024" />
+                <input type="number" id="maxYear" class="form-control" value="2024" min="1970" max="2024" />
+            </div>
+        </div>
+        <div class="movie-type-select">
+            <select class="form-select" aria-label="Movie type selection">
+                <option value="allmovies" selected>All Movies</option>
+                <option value="blockbuster">Blockbuster</option>
+                <option value="independent">Independent</option>
+            </select>
+        </div>
+    </div>
+        <div class = "content-container">
+            <!-- Main Content -->
+            <div class="content">
+                <!-- Content Items -->
+                <div class="content-item">
+                    <!-- Dropdown and Text Alignment -->
+                    <div class="d-flex justify-content-center align-items-center mt-2 w-100">
+                        <select class="form-select fw-bold" aria-label="Select Metric" style="width: 40%;"
+                            id="metricDropdown">
+                            <option value="popularity" selected>Popularity (Score)</option>
+                            <option value="vote_average">Rating (0-10)</option>
+                            <option value="films_released">Films Released (Count)</option>
+                            <option value="roi">ROI</option>
+                            <option value="budget">Budget ($USD)</option>
+                            <option value="revenue">Revenue ($USD)</option>
+                        </select>
+                        <p class="ms-2 mb-0 fw-bold">Over Time</p>
+                    </div>
+                    <!-- Graph Container -->
+                    <div class="w-100 h-75" id="lineGraph"></div>
+                    <!-- Tooltip container -->
+                    <div class="tooltip tooltip-line"></div>
                 </div>
-                <ul class="selected-results list-group" id="selectedResults"></ul>
-            </div>
-            <div class="genres">
-                <ul class="genre-list list-group" id="genreList"></ul>
-            </div>
-            <div class="time-select mt-4">
-                <select class="form-select" aria-label="Time selection">
-                    <option value="alltime" selected>All-Time</option>
-                    <option value="thisyear">This Year</option>
-                    <option value="lastyear">Last Year</option>
-                    <option value="last5years">Last 5 Years</option>
-                    <option value="last10years">Last 10 Years</option>
-                    <option value="last25years">Last 25 Years</option>
-                    <option value="specificyear">Specific Year</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="content-item">
-            <svg id="lineGraph1" width="600" height="400"></svg>
-        </div>
-        <div class="content-item">
-            <svg id="lineGraph2" width="600" height="400"></svg>
-        </div>
-        <div class="content-item">
-            <svg id="lineGraph3" width="600" height="400"></svg>
-        </div>
-        <div class="content-item">
-            <svg id="lineGraph4" width="600" height="400"></svg>
+                <div class="content-item">
+                    <div class="d-flex justify-content-center align-items-center mt-4 w-100">
+                        <p class="ms-2 mb-0 fw-bold">Return On Investment</p>
+                    </div>
+                    <div class="w-100 h-75" id="stackedBarChart"></div>
+                </div>
+
+                <div class="content-item">
+                    <svg id="some" width="100%" height="100%"></svg>
+                </div>
+                <div class="content-item">
+                    <svg id="lineGraph4" width="100%" height="100%"></svg>
+                </div>
+            </div>
+
+            <div class = "content">
+                <div class="content-item">
+                    <div class="justify-content-center align-items-center mt-3 w-100 text-center">
+                        <p class="ms-2 mb-1 fw-bold">
+                            Average Return On Investment (ROI)
+                            <span class="ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="Ex: an investment of $1000 with a profit of $200 has a ROI of 20%.">
+                                <i class="bi bi-info-circle" style="cursor: pointer;"></i>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="w-100 h-75" id="boxPlot"></div>
+                    <!-- Tooltip container -->
+                    <div class="tooltip tooltip-box"></div>
+                </div>
+                <div class="content-item">
+                    <svg id="sankeyChart" width="100%" height="100%"></svg>
+                </div>
+                <div class="content-item">
+                    <svg id="some" width="100%" height="100%"></svg>
+                </div>
+                <div class="content-item">
+                    <svg id="lineGraph4" width="100%" height="100%"></svg>
+                </div>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
-    <script src="./js/filterBar.js"></script>
-    <script src="./js/actors.js"></script>
+    <script type="module" src="./js/filterBar.js"></script>
+    <script type="module" src="./js/actors.js"></script>
 </body>
 
 </html>
