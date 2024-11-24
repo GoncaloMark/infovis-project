@@ -2,6 +2,8 @@ html {
     scrollbar-width: thin;
     scrollbar-color: rgb(52, 58, 64) transparent;
     overflow-x: hidden;
+    position: relative;
+    z-index: 10; /* Ensure it sits above */
 }
 
 body {
@@ -14,30 +16,29 @@ body {
     height: 100vh;
     margin-right: 1rem;
     margin-left: 250px;
-}
-
-body::-webkit-scrollbar {
-    height: 6px;
-    /* Minimal height for horizontal scrollbar */
+    position: relative; /* Isolate body for z-index control */
 }
 
 body::-webkit-scrollbar-track {
     background: transparent;
-    /* Transparent track for minimal look */
+    z-index: 100;
 }
 
 body::-webkit-scrollbar-thumb {
     background-color: #c0c0c0;
-    /* Scrollbar thumb color */
     border-radius: 10px;
-    /* Rounded edges for thumb */
+    border: 1px solid transparent; /* Prevent thumb from being clipped */
+    position: relative; /* Ensure it stays on top */
+    z-index: 100;
 }
+
 
 .content-container {
     display: flex;
     flex-direction: column;
     flex-grow: 2;
     min-width: 0;
+    padding: 1rem 0;
 }
 
 .filter-stacking {
@@ -46,7 +47,6 @@ body::-webkit-scrollbar-thumb {
     gap: 2rem;
     flex-wrap: nowrap;
     width: 100%;
-    padding: 1rem;
     height: 100%;
 }
 
@@ -98,7 +98,10 @@ body::-webkit-scrollbar-thumb {
     scrollbar-color: initial;
     flex-grow: 1;
     width: 20vw;
-    height: 90%;
+    height: 100%;
+    padding: 1rem;
+    padding-bottom: 2rem;
+    background-color: #343a4020; /* Transparent background */
 }
 
 .filter-bar .search {
