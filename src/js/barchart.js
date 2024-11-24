@@ -1,89 +1,155 @@
-function barChart(path, labels, groups) {
-    // Load the CSV file
-    d3.csv(path).then(data => {
-        // Parse numeric values for specified labels
-        data.forEach(d => {
-            labels.forEach(label => {
-                d[label] = +d[label];
+const x = d3.scaleLinear();
+const y = d3.scaleBand().padding(0.5);
+
+// Horizontal Bar Chart Initialization
+const initializeHorizontalBarChart = (chartElement, margin, width, height) => {
+    // Create container
+    const svg = d3.select(chartElement)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left+10},${margin.top})`);
+
+    x.range([0, width]);
+    y.range([0, height]);
+
+    return { svg };
+};
+
+// Update Horizontal Bar Chart
+const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, color) => {
+    // Clear existing chart content
+    svg.selectAll('*').remove();
+    const processedData = data.map(d => ({
+        Y : d[y_axis],
+        data: d.data,
+        X: d3.mean(d.data, d => d[x_axis]) 
+    }));
+
+    // console.log(processedData)
+
+    // Update scales
+    const x = d3.scaleLinear()
+        .domain([0, d3.max(processedData, d => d.X)]) // Get max from params
+        .range([0, width]);
+
+    const y = d3.scaleBand()
+        .domain(processedData.map(d => d.Y)) 
+        .range([0, height]) 
+        .padding(0.2); 
+
+    const xAxis = svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(5));
+
+    xAxis.selectAll('path, line')
+        .style('stroke', '#ccc');
+
+    xAxis.selectAll('text')
+        .style('font-size', '12px');
+
+    const yAxis = svg.append('g')
+        .call(d3.axisLeft(y));
+
+    yAxis.selectAll('path, line')
+        .style('stroke', '#ccc');
+
+    yAxis.selectAll('text')
+        .style('font-size', '12px');
+
+    // Add bars
+    svg.selectAll('.bar')
+        .data(processedData)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', 0) 
+        .attr('y', d => y(d.Y)) 
+        .attr('width', d => x(d.X))
+        .attr('height', y.bandwidth()) 
+        .style('fill', (d, i) => color(i))
+        .on('click', (event, d) => {
+            const tooltip = d3.select('.tooltip-bchart');
+            console.log("CLICK")
+            tooltip.transition()
+                .duration(100)
+                .style('opacity', 1); // Show tooltip
+
+            tooltip.html(`
+                <strong>Genre:</strong> ${d.Y}<br>
+                <strong>Vote Average:</strong> ${d.X.toFixed(2)}
+            `)
+                .style('left', `${event.clientX + 10}px`) 
+                .style('top', `${event.clientY + 10}px`);
+
+            event.stopPropagation(); // Prevent event bubbling
+
+                const tableHeader = `
+                <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Title</th>
+                </tr>`;
+            d3.select('#movieTableBody')
+                .html(''); // Clear the table body
+
+            d3.select('#movieTableHead')
+                .html(tableHeader); // Update the table header
+
+            // Populate the table with movies related to the data
+            const movies = d.data.flatMap(d => d.films); // Assuming `movies` is an array of movie data
+            console.log(movies)
+            // Sort the movies by the selected metric
+            const sortedMovies = movies.sort((a, b) => b['vote_average'] - a['vote_average']);
+            sortedMovies.forEach(movie => {
+                d3.select('#movieTableBody').append('tr').html(`
+                    <td>${movie.release_year}</td>
+                    <td>${movie.title}</td>
+                    <td>${movie[x_axis]}</td>
+                `);
+            });
+
+            // Update the title and subtitle
+            d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
+            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${d.Y}`);
+
+            d3.select('body').on('click', () => {
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0);
             });
         });
 
-        // Filter data to only include rows matching the groups (director names)
-        const filteredData = data.filter(d => groups.includes(d.director_name));
+    // Add grid lines 
+    svg.append('g')
+        .attr('class', 'grid')
+        .call(d3.axisBottom(x)
+            .ticks(5) 
+            .tickSize(height) 
+            .tickFormat('') 
+        )
+        .style('stroke', '#ccc') 
+        .style('stroke-width', '0.5px');
+};
 
-        // Aggregate data by director_name
-        const aggregatedData = groups.map(group => {
-            const groupData = filteredData.filter(d => d.director_name === group);
-            const aggregatedValues = {};
-            labels.forEach(label => {
-                aggregatedValues[label] = d3.sum(groupData, d => d[label]);
-            });
-            return { group, ...aggregatedValues };
-        });
+// Responsive Chart Update
+const updateHorizontalBarChartWindow = (plot, svg, data, margin, color) => {
+    const width = plot.clientWidth - margin.left - margin.right;
+    const height = plot.clientHeight - margin.top - margin.bottom;
 
-        // Set up dimensions and margins
-        const barChart = document.getElementById('barChart');
-        const margin = { top: 20, right: 30, bottom: 50, left: 80 };
-        const width = barChart.clientWidth - margin.left - margin.right;
-        const height = barChart.clientHeight - margin.top - margin.bottom;
+    // Update the SVG dimensions
+    d3.select(plot).select('svg')
+        .attr('width', plot.clientWidth)
+        .attr('height', plot.clientHeight);
 
-        // Compute max domain dynamically
-        const max_dom = d3.max(aggregatedData.flatMap(d => labels.map(label => d[label])));
+    x.range([0, width]);
+    y.range([0, height]);
 
-        // Create the SVG container
-        const svg = d3.select(barChart)
-            .append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+    updateHorizontalBarChart(svg, data, width, height, "vote_average", "genre", color);
+};
 
-        // Create scales
-        const x = d3.scaleBand()
-            .domain(groups) // Use the provided groups (director names)
-            .range([0, width])
-            .padding(0.2);
-
-        const y = d3.scaleLinear()
-            .domain([0, max_dom])
-            .range([height, 0]);
-
-        const xSubgroup = d3.scaleBand()
-            .domain(labels) // Use labels for subgroups
-            .range([0, x.bandwidth()])
-            .padding(0.05);
-
-        const color = d3.scaleOrdinal()
-            .domain(labels)
-            .range(d3.schemeCategory10); // Dynamic color scheme
-
-        // Add X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .selectAll("text")
-            .attr("transform", "rotate(-30)")
-            .style("text-anchor", "end");
-
-        // Add Y axis
-        svg.append("g")
-            .call(d3.axisLeft(y));
-
-        // Draw bars
-        svg.append("g")
-            .selectAll("g")
-            .data(aggregatedData)
-            .enter()
-            .append("g")
-            .attr("transform", d => `translate(${x(d.group)},0)`)
-            .selectAll("rect")
-            .data(d => labels.map(label => ({ key: label, value: d[label] })))
-            .enter()
-            .append("rect")
-            .attr("x", d => xSubgroup(d.key))
-            .attr("y", d => y(d.value))
-            .attr("width", xSubgroup.bandwidth())
-            .attr("height", d => height - y(d.value))
-            .attr("fill", d => color(d.key));
-    });
-}
+export {
+    initializeHorizontalBarChart,
+    updateHorizontalBarChart,
+    updateHorizontalBarChartWindow
+};

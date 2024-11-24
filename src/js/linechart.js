@@ -9,7 +9,7 @@ const initializeLineChart = (lineChartElement, margin, width, height) => {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+        .attr('transform', `translate(${margin.left+10},${margin.top})`);
 
     const legendContainer = d3.select(lineChartElement)
         .append('div')
@@ -24,7 +24,7 @@ const initializeLineChart = (lineChartElement, margin, width, height) => {
     return { svg, legendContainer };
 };
 
-const updateLineChart = (lineChart, svg, data, metric, color, width, height) => {
+const updateLineChart = (lineChart, svg, data, metric, color, width, height, label) => {
     // Update x and y domains
     const allYears = data.flatMap(g => g.data.map(d => d.year));
     x.domain([d3.min(allYears), d3.max(allYears)]);
@@ -35,6 +35,14 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
     // Calculate the min and max of the metric values
     const minValue = d3.min(allMetricValues);
     const maxValue = d3.max(allMetricValues);
+    console.log(metric)
+    let append = ''
+    switch(metric){
+        case 'budget':
+        case 'revenue':
+            append = "$";
+            break;
+    }
 
     // Update y domain
     y.domain([minValue < 0 ? minValue * 2 : 0, maxValue * 1.1]);
@@ -87,17 +95,21 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .attr('fill', color(index))
             .on('click', (event, d) => {
 
-            const tooltip = d3.select('.tooltip-line');
-            tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
+            console.log(genreObj.data)
 
-            tooltip
-                .html(`
-                <strong>Genre</strong>: ${genreObj.genre}<br>
-                <strong>Year</strong>: ${d.year}<br>
-                ${metric !== 'films_released' ? `<strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${d[metric]}` : ''}
-                `)
-                .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
-                .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
+                const tooltip = d3.select('.tooltip-line');
+                tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
+
+                // console.log(genreObj[label])
+
+                tooltip
+                    .html(`
+                        <strong>${label}</strong>: ${genreObj[label]}<br>
+                        <strong>Year</strong>: ${d.year}<br>
+                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${append}${d[metric].toFixed(2)}
+                    `)
+                    .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
+                    .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
 
             // Prevent event bubbling
             event.stopPropagation();
@@ -115,24 +127,31 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             d3.select('#movieTableHead')
                 .html(tableHeader); // Update the table header
 
-            // Populate the table with movies related to the data
-            const movies = d.films; // Assuming `movies` is an array of movie data
-            // Sort the movies by the selected metric
-            const sortedMovies = movies.sort((a, b) => b[metric] - a[metric]);
-            sortedMovies.forEach(movie => {
-                d3.select('#movieTableBody').append('tr').html(`
-                <td>${movie.release_year}</td>
-                <td>${movie.title}</td>
-                ${metric !== 'films_released' ? `<td>${movie[metric]}</td>` : ''}
-                `);
-            });
+                // Populate the table with movies related to the data
+                const movies = d.films; // Assuming `movies` is an array of movie data
+                // Sort the movies by the selected metric
+                const sortedMovies = movies.sort((a, b) => b[metric] - a[metric]);
+                sortedMovies.forEach(movie => {
+                    d3.select('#movieTableBody').append('tr').html(`
+                        <td>${movie.release_year}</td>
+                        <td>${movie.title}</td>
+                        <td>${append}${movie[metric]}</td>
+                    `);
+                });
 
-            // Update the title and subtitle
-            d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
-            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
-            // Update the year
-            d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
+                // Update the title and subtitle
+                d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
+                d3.select('#movieSidebar').select('h5').append('h6').text(`${label}: ${genreObj[label]}`);
+                // Update the year
+                d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
+
+                d3.select('body').on('click', () => {
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 0);
+                });
             });
+            
     });
 
     // Add axes
@@ -145,7 +164,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
 
     svg.append('g')
         .attr('class', 'y-axis')
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(y).tickFormat(d => `${append + d}`))
         .selectAll('path, line')
         .style('stroke', '#ccc');
 
@@ -168,13 +187,13 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .style('font-size', '12px')
             .html(`
                 <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
-                ${genreObj.genre}
+                ${genreObj[label]}
             `);
     });
 };
 
 
-const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
+const updateLineChartWindow = (plot, svg, data, metric, color, margin, label) => {
     const width = plot.clientWidth - margin.left - margin.right;
     const height = plot.clientHeight - margin.top - margin.bottom;
 
@@ -186,7 +205,7 @@ const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
     x.range([0, width]);
     y.range([height, 0]);
 
-    updateLineChart(plot, svg, data, metric, color, width, height);
+    updateLineChart(plot, svg, data, metric, color, width, height, label);
 }
 
 export { initializeLineChart, updateLineChart, updateLineChartWindow };

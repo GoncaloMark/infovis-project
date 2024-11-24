@@ -11,8 +11,9 @@ body {
     flex-direction: column;
     overflow-x: auto;
     margin: 0;
-    margin-left: 250px;
     height: 100vh;
+    margin-right: 1rem;
+    margin-left: 250px;
 }
 
 body::-webkit-scrollbar {
@@ -89,14 +90,15 @@ body::-webkit-scrollbar-thumb {
 }
 
 .filter-bar {
+    position: fixed;
     display: flex;
     flex-direction: column;
     color: white;
     padding: 0;
     scrollbar-color: initial;
     flex-grow: 1;
-    width: 36vw;
-    height: 100%;
+    width: 20vw;
+    height: 90%;
 }
 
 .filter-bar .search {
@@ -149,6 +151,7 @@ body::-webkit-scrollbar-thumb {
     flex: 0 0 auto;
     display: flex;
     gap: 1rem;
+    margin-left: 25vw;
 }
 
 .content-item {
@@ -160,6 +163,7 @@ body::-webkit-scrollbar-thumb {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     border-radius: 50px;
     padding: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .card {
@@ -257,6 +261,7 @@ body::-webkit-scrollbar-thumb {
     border-radius: 4px;
     opacity: 0;
     transition: opacity 0.2s;
+    pointer-events: none;
 }
 
 #movieSidebar {
@@ -271,6 +276,7 @@ body::-webkit-scrollbar-thumb {
     display: none; /* Fully remove from the layout */
     transform: translateX(100%);
     opacity: 0;
+    display: none;
 }
 
 /* General button styles */
@@ -285,6 +291,7 @@ body::-webkit-scrollbar-thumb {
     border-bottom-right-radius: 0;
     background-color: #343a40;
     color: white;
+    display: block;
 }
 
 /* When sidebar is open, move button to the left */

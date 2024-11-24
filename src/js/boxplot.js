@@ -1,18 +1,23 @@
+const x = d3.scaleBand()
+    .padding(0.5);
+
+const y = d3.scaleLinear();
 /**
- * Generate boxplot data for genres based on ROI, using genreData.
- * @param {Array} genreData - An array of objects containing genre and aggregated data.
- * @returns {Array} - An array of objects containing genre and boxplot data.
+ * Generate boxplot data for a dynamic label based on ROI.
+ * @param {Array} data - An array of objects containing label and aggregated data.
+ * @param {String} labelKey - The key used for dynamic labeling (e.g., 'genre', 'director').
+ * @returns {Array} - An array of objects containing label and boxplot data.
  */
-function getBoxplotData(genreData) {
-    return genreData.map(({ genre, data }) => {
-        // Flatten ROI values across all years for the given genre
+function getBoxplotData(data, labelKey) {
+    return data.map(({ [labelKey]: label, data }) => {
+        // Flatten ROI values across all years for the given label
         const roiValues = data
             .map(d => d.roi)
             .filter(v => !isNaN(v) && isFinite(v));
 
         if (roiValues.length === 0) {
             return {
-                genre,
+                [labelKey]: label,
                 stats: { min: null, q1: null, median: null, q3: null, max: null }
             };
         }
@@ -27,16 +32,11 @@ function getBoxplotData(genreData) {
         const max = Math.min(d3.max(roiValues), q3 + 1.5 * iqr);
 
         return {
-            genre,
+            [labelKey]: label,
             stats: { min, q1, median, q3, max }
         };
     });
 }
-
-const x = d3.scaleBand()
-    .padding(0.5);
-
-const y = d3.scaleLinear();
 
 // Box Plot Initialization
 const initializeBoxPlot = (boxPlotElement, margin, width, height) => {
@@ -53,20 +53,20 @@ const initializeBoxPlot = (boxPlotElement, margin, width, height) => {
     return { svg };
 };
 
-const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
-    const boxData = getBoxplotData(data);
-    const genres = boxData.map(d => d.genre);
+const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
+    const boxData = getBoxplotData(data, labelKey);
+    const labels = boxData.map(d => d[labelKey]);
 
     // Clear previous elements
     svg.selectAll('*').remove();
 
     // Update scales
-    x.domain(genres);
+    x.domain(labels);
     y.domain([d3.min(boxData.flatMap(d => [d.stats.min])) * 1.5, d3.max(boxData.flatMap(d => [d.stats.max])) * 1.1]);
 
     // Draw axes
     const xAxis = d3.axisBottom(x);
-    const yAxis = d3.axisLeft(y);
+    const yAxis = d3.axisLeft(y).tickFormat(d => `$${d}`);
 
     svg.append('g')
         .attr('transform', `translate(0,${height})`)
@@ -92,19 +92,19 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
 
     // Draw boxplots
     boxData.forEach((d, index) => {
-        const { genre, stats } = d;
+        const { [labelKey]: label, stats } = d;
 
         // Whiskers
         svg.append('line')
-            .attr('x1', x(genre) + x.bandwidth() / 2)
-            .attr('x2', x(genre) + x.bandwidth() / 2)
+            .attr('x1', x(label) + x.bandwidth() / 2)
+            .attr('x2', x(label) + x.bandwidth() / 2)
             .attr('y1', y(stats.min))
             .attr('y2', y(stats.max))
             .attr('stroke', 'black');
 
         // Box
         const box = svg.append('rect')
-            .attr('x', x(genre) + x.bandwidth() / 2 - boxWidth / 2)
+            .attr('x', x(label) + x.bandwidth() / 2 - boxWidth / 2)
             .attr('y', y(stats.q3))
             .attr('height', Math.max(0, y(stats.q1) - y(stats.q3))) // Prevent negative height
             .attr('width', boxWidth)
@@ -113,18 +113,17 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
 
         // Median line
         svg.append('line')
-            .attr('x1', x(genre) + x.bandwidth() / 2 - boxWidth / 2)
-            .attr('x2', x(genre) + x.bandwidth() / 2 + boxWidth / 2)
+            .attr('x1', x(label) + x.bandwidth() / 2 - boxWidth / 2)
+            .attr('x2', x(label) + x.bandwidth() / 2 + boxWidth / 2)
             .attr('y1', y(stats.median))
             .attr('y2', y(stats.median))
             .attr('stroke', 'black');
 
         // Add click event for tooltip
         box.on('click', function (event) {
-
             // Set tooltip content
             const tooltipContent = `
-                <strong>Genre:</strong> ${genre}<br>
+                <strong>${labelKey.charAt(0).toUpperCase() + labelKey.slice(1)}:</strong> ${label}<br>
                 <strong>Max:</strong> ${stats.max}<br>
                 <strong>Q3:</strong> ${stats.q3}<br>
                 <strong>Median:</strong> ${stats.median}<br>
@@ -159,10 +158,7 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
                 .html(tableHeader); // Update the table header
 
             // Populate the table with movies related to the data
-            console.log(genre);
-            console.log(data);
-            const genreObj = data.find(d => d.genre === genre);
-            console.log(genreObj);
+            const genreObj = data.find(d => d[labelKey] === label);
 
             // Unpack the movies from the genre object, and sort them by the roi metric
             const movies = genreObj.data.flatMap(d => d.films);
@@ -177,21 +173,11 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height) => {
                 <td>${movie['revenue']}</td>
             `);
             });
-
-            // Update the title and subtitle
-            d3.select('#movieSidebar h5').html('<strong>Box Plot - Movie Details</strong>');
-            d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
-            // Update the year range
-            const years = genreObj.data.map(d => d.year);
-            const minYear = d3.min(years);
-            const maxYear = d3.max(years);
-            d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${minYear} - ${maxYear}</em>`).style('margin', '0');
         });
     });
 };
 
-
-const updateBoxPlotWindow = (plot, svg, data, color, margin, boxWidth) => {
+const updateBoxPlotWindow = (plot, svg, data, color, margin, boxWidth, labelKey) => {
     const width = plot.clientWidth - margin.left - margin.right;
     const height = plot.clientHeight - margin.top - margin.bottom;
 
@@ -204,7 +190,7 @@ const updateBoxPlotWindow = (plot, svg, data, color, margin, boxWidth) => {
     y.range([height, 0]);
 
     // Update box plot with the new dimensions and scales
-    updateBoxPlot(svg, data, color, boxWidth, width, height);
+    updateBoxPlot(svg, data, color, boxWidth, width, height, labelKey);
 };
 
 export { initializeBoxPlot, updateBoxPlot, updateBoxPlotWindow };
