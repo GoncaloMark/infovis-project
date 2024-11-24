@@ -24,7 +24,7 @@ const initializeLineChart = (lineChartElement, margin, width, height) => {
     return { svg, legendContainer };
 };
 
-const updateLineChart = (lineChart, svg, data, metric, color, width, height) => {
+const updateLineChart = (lineChart, svg, data, metric, color, width, height, label) => {
     // Update x and y domains
     const allYears = data.flatMap(g => g.data.map(d => d.year));
     x.domain([d3.min(allYears), d3.max(allYears)]);
@@ -100,9 +100,11 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
                 const tooltip = d3.select('.tooltip-line');
                 tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
 
+                // console.log(genreObj[label])
+
                 tooltip
                     .html(`
-                        <strong>Genre</strong>: ${genreObj.genre}<br>
+                        <strong>${label}</strong>: ${genreObj[label]}<br>
                         <strong>Year</strong>: ${d.year}<br>
                         <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${append}${d[metric].toFixed(2)}
                     `)
@@ -139,7 +141,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
 
                 // Update the title and subtitle
                 d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
-                d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${genreObj.genre}`);
+                d3.select('#movieSidebar').select('h5').append('h6').text(`${label}: ${genreObj[label]}`);
                 // Update the year
                 d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
             });
@@ -178,13 +180,13 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height) => 
             .style('font-size', '12px')
             .html(`
                 <span style="display:inline-block;width:10px;height:10px;background-color:${color(index)};"></span>
-                ${genreObj.genre}
+                ${genreObj[label]}
             `);
     });
 };
 
 
-const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
+const updateLineChartWindow = (plot, svg, data, metric, color, margin, label) => {
     const width = plot.clientWidth - margin.left - margin.right;
     const height = plot.clientHeight - margin.top - margin.bottom;
 
@@ -196,7 +198,7 @@ const updateLineChartWindow = (plot, svg, data, metric, color, margin) => {
     x.range([0, width]);
     y.range([height, 0]);
 
-    updateLineChart(plot, svg, data, metric, color, width, height);
+    updateLineChart(plot, svg, data, metric, color, width, height, label);
 }
 
 export { initializeLineChart, updateLineChart, updateLineChartWindow };

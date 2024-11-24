@@ -89,17 +89,18 @@ d3.csv('../../data/movies.csv').then(data => {
     // Dropdown change event handler for line chart
     d3.select('#metricDropdown').on('change', function () {
         selectedMetric = this.value;
-        updateLineChart(lineGraph, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight);
+        updateLineChart(lineGraph, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight, "genre");
     });
+
+    console.log(genreData)
 
     // Update all graphs
     const updateAllGraphs = (filters) => {
         genreData = getGenreData(filters.selectedGenres, data, filters.minYear, filters.maxYear);
         const selectedMetric = document.getElementById('metricDropdown').value;
 
-        updateLineChart(lineChart, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight);
-        updateBoxPlot(svgBox, genreData, color, 40, boxPlotWidth, boxPlotHeight);
-        console.log(genreData)
+        updateLineChart(lineChart, svgLine, genreData, selectedMetric, color, lineChartWidth, lineChartHeight, "genre");
+        updateBoxPlot(svgBox, genreData, color, 40, boxPlotWidth, boxPlotHeight, "genre");
         updateStackedBarChart(svgStackedBar, genreData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight);
         updateHorizontalBarChart(
             svgBar,
@@ -125,8 +126,8 @@ d3.csv('../../data/movies.csv').then(data => {
     // Set up a resize event listener
     window.addEventListener('resize', () => {
         const selectedMetric = document.getElementById('metricDropdown').value;
-        updateBoxPlotWindow(boxPlot, svgBox, genreData, color, margin, 40);
-        updateLineChartWindow(lineChart, svgLine, genreData, selectedMetric, color, margin);
+        updateBoxPlotWindow(boxPlot, svgBox, genreData, color, margin, 40, "genre");
+        updateLineChartWindow(lineChart, svgLine, genreData, selectedMetric, color, margin, "genre");
         updateStackedBarChartWindow(stackedBarChart, svgStackedBar, genreData, ['budget', 'revenue'], margin);
         updateHorizontalBarChartWindow(barChart, svgBar, genreData, margin, color)
     });
