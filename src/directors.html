@@ -75,7 +75,15 @@
     <div class="filter-stacking">
         <!-- Filter Bar -->
         <div class="filter-bar justify-content-between">
-            <div class="genres mt-0" style="height: 80%;">
+            <div class="genres mt-0">
+                <!-- Search Bar -->
+                <div class="input-group">
+                    <span class="input-group-text" id="actorSearch">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input class="form-control" type="text" id="search" placeholder="Search for an actor..."
+                        aria-describedby="actorSearch">
+                </div>
                 <!-- Genre List-->
                 <ul class="genre-list list-group" id="genreList">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
