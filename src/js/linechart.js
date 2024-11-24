@@ -9,7 +9,7 @@ const initializeLineChart = (lineChartElement, margin, width, height) => {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', `translate(${margin.left+10},${margin.top})`);
+        .attr('transform', `translate(${margin.left + 10},${margin.top})`);
 
     const legendContainer = d3.select(lineChartElement)
         .append('div')
@@ -37,7 +37,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
     const maxValue = d3.max(allMetricValues);
     console.log(metric)
     let append = ''
-    switch(metric){
+    switch (metric) {
         case 'budget':
         case 'revenue':
             append = "$";
@@ -95,12 +95,15 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
             .attr('fill', color(index))
             .on('click', (event, d) => {
 
-            console.log(genreObj.data)
+                console.log(genreObj.data)
 
                 const tooltip = d3.select('.tooltip-line');
                 tooltip.transition().duration(200).style('opacity', 1); // Show tooltip
 
-                // console.log(genreObj[label])
+
+                // Get the horizontal and vertical scroll offsets of the scrolling container
+                const scrollContainer = document.body; // Use the <body> element or change to the appropriate container
+                const scrollLeft = scrollContainer.scrollLeft; // Horizontal scroll offset
 
                 tooltip
                     .html(`
@@ -108,24 +111,24 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
                         <strong>Year</strong>: ${d.year}<br>
                         <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${append}${d[metric].toFixed(2)}
                     `)
-                    .style('left', `${event.pageX + 10}px`) // Position tooltip to the right of the cursor
+                    .style('left', `${event.pageX + 10 - 250 + scrollLeft}px`) // Position tooltip to the right of the cursor
                     .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
 
-            // Prevent event bubbling
-            event.stopPropagation();
+                // Prevent event bubbling
+                event.stopPropagation();
 
-            // Update the table header
-            const tableHeader = `
+                // Update the table header
+                const tableHeader = `
                 <tr>
                 <th scope="col">Year</th>
                 <th scope="col">Title</th>
                 ${metric !== 'films_released' ? `<th scope="col">${metric.charAt(0).toUpperCase() + metric.slice(1)}</th>` : ''}
                 </tr>`;
-            d3.select('#movieTableBody')
-                .html(''); // Clear the table body
+                d3.select('#movieTableBody')
+                    .html(''); // Clear the table body
 
-            d3.select('#movieTableHead')
-                .html(tableHeader); // Update the table header
+                d3.select('#movieTableHead')
+                    .html(tableHeader); // Update the table header
 
                 // Populate the table with movies related to the data
                 const movies = d.films; // Assuming `movies` is an array of movie data
@@ -151,7 +154,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
                         .style('opacity', 0);
                 });
             });
-            
+
     });
 
     // Add axes

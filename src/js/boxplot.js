@@ -131,11 +131,15 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
                 <strong>Min:</strong> ${stats.min}
             `;
 
+            // Get the horizontal and vertical scroll offsets of the scrolling container
+            const scrollContainer = document.body; // Use the <body> element or change to the appropriate container
+            const scrollLeft = scrollContainer.scrollLeft; // Horizontal scroll offset
+            
             // Display the tooltip at the mouse position
             const tooltip = d3.select('.tooltip-box');
             tooltip.transition().duration(200).style('opacity', 1);  // Show tooltip
             tooltip.html(tooltipContent)
-                .style('left', `${event.pageX + 10}px`)
+                .style('left', `${event.pageX + 10 - 250 + scrollLeft}px`)
                 .style('top', `${event.pageY + 10}px`)
                 .style('opacity', 1);
 

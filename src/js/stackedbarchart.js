@@ -11,7 +11,7 @@ const initializeStackedBarChart = (stackedBarChartElement, margin, width, height
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', `translate(${margin.left+10},${margin.top})`);
+        .attr('transform', `translate(${margin.left + 10},${margin.top})`);
 
     x.range([0, width]);
     y.range([height, 0]);
@@ -46,7 +46,7 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
         .style('stroke', '#ccc').style('stroke-width', '0.5px');
 
     // Tooltip element
-    const tooltip = d3.select('.tooltip-line'); // Ensure this exists in your HTML
+    const tooltip = d3.select('.tooltip-stacked'); // Ensure this exists in your HTML
 
     // Draw bars
     const barGroups = svg.append('g')
@@ -83,12 +83,20 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
             // Tooltip interaction
             tooltip.transition().duration(200).style('opacity', 1);
 
+            // Get the horizontal and vertical scroll offsets of the scrolling container
+            const scrollContainer = document.body; // Use the <body> element or change to the appropriate container
+            const scrollLeft = scrollContainer.scrollLeft; // Horizontal scroll offset
+
+
             tooltip.html(`
                 <strong>${prop.charAt(0).toUpperCase() + prop.slice(1)}</strong>: ${d.genreData[prop]}<br>
                 <strong>${labels[d.barIndex]}</strong>: ${d.value.toFixed(2)}
             `)
-                .style('left', `${event.pageX + 10}px`)
+                .style('left', `${event.pageX + 10 - 250 + scrollLeft}px`)
                 .style('top', `${event.pageY + 10}px`);
+
+            // Prevent event bubbling
+            event.stopPropagation();
 
             // Update sidebar
             d3.select('#movieSidebar h5').html('<strong>Cluster Bar Chart - Movie Details</strong>');
@@ -121,13 +129,11 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
                     <td>${movie.roi}%</td>
                 `);
             });
-
-            // Prevent event bubbling
-            event.stopPropagation();
-
-            // Hide tooltip on body click
+            
             d3.select('body').on('click', () => {
-                tooltip.transition().duration(200).style('opacity', 0);
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0);
             });
         });
 };
@@ -145,8 +151,8 @@ const updateStackedBarChartWindow = (plot, svg, data, labels, margin, prop, colo
     x.range([0, width]);
     y.range([height, 0]);
 
-    updateStackedBarChart(svg, data, labels, width, height, prop, color );
-};  
+    updateStackedBarChart(svg, data, labels, width, height, prop, color);
+};
 
 // Export the functions for external use
 export { initializeStackedBarChart, updateStackedBarChart, updateStackedBarChartWindow };

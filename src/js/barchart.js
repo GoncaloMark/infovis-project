@@ -9,7 +9,7 @@ const initializeHorizontalBarChart = (chartElement, margin, width, height) => {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', `translate(${margin.left+10},${margin.top})`);
+        .attr('transform', `translate(${margin.left + 10},${margin.top})`);
 
     x.range([0, width]);
     y.range([0, height]);
@@ -22,9 +22,9 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
     // Clear existing chart content
     svg.selectAll('*').remove();
     const processedData = data.map(d => ({
-        Y : d[y_axis],
+        Y: d[y_axis],
         data: d.data,
-        X: d3.mean(d.data, d => d[x_axis]) 
+        X: d3.mean(d.data, d => d[x_axis])
     }));
 
     // console.log(processedData)
@@ -35,9 +35,9 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
         .range([0, width]);
 
     const y = d3.scaleBand()
-        .domain(processedData.map(d => d.Y)) 
-        .range([0, height]) 
-        .padding(0.2); 
+        .domain(processedData.map(d => d.Y))
+        .range([0, height])
+        .padding(0.2);
 
     const xAxis = svg.append('g')
         .attr('transform', `translate(0,${height})`)
@@ -64,10 +64,10 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
         .enter()
         .append('rect')
         .attr('class', 'bar')
-        .attr('x', 0) 
-        .attr('y', d => y(d.Y)) 
+        .attr('x', 0)
+        .attr('y', d => y(d.Y))
         .attr('width', d => x(d.X))
-        .attr('height', y.bandwidth()) 
+        .attr('height', y.bandwidth())
         .style('fill', (d, i) => color(i))
         .on('click', (event, d) => {
             const tooltip = d3.select('.tooltip-bchart');
@@ -76,16 +76,21 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
                 .duration(100)
                 .style('opacity', 1); // Show tooltip
 
+            // Get the horizontal and vertical scroll offsets of the scrolling container
+            const scrollContainer = document.body; // Use the <body> element or change to the appropriate container
+            const scrollLeft = scrollContainer.scrollLeft; // Horizontal scroll offset
+
             tooltip.html(`
-                <strong>Genre:</strong> ${d.Y}<br>
-                <strong>Vote Average:</strong> ${d.X.toFixed(2)}
-            `)
-                .style('left', `${event.clientX + 10}px`) 
-                .style('top', `${event.clientY + 10}px`);
+                    <strong>Genre:</strong> ${d.Y}<br>
+                    <strong>Vote Average:</strong> ${d.X.toFixed(2)}
+                `)
+                .style('left', `${event.clientX + window.scrollX + 10 - 250 + scrollLeft}px`) // Adjust for horizontal scroll
+                .style('top', `${event.clientY + window.scrollY + 10}px`); // Adjust for vertical scroll
+
 
             event.stopPropagation(); // Prevent event bubbling
 
-                const tableHeader = `
+            const tableHeader = `
                 <tr>
                     <th scope="col">Year</th>
                     <th scope="col">Title</th>
@@ -124,11 +129,11 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
     svg.append('g')
         .attr('class', 'grid')
         .call(d3.axisBottom(x)
-            .ticks(5) 
-            .tickSize(height) 
-            .tickFormat('') 
+            .ticks(5)
+            .tickSize(height)
+            .tickFormat('')
         )
-        .style('stroke', '#ccc') 
+        .style('stroke', '#ccc')
         .style('stroke-width', '0.5px');
 };
 

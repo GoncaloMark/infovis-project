@@ -119,6 +119,8 @@ d3.csv('../../data/movies.csv').then(data => {
             // Hide tooltips for all types
             d3.selectAll('.tooltip-line').transition().duration(200).style('opacity', 0);
             d3.selectAll('.tooltip-box').transition().duration(200).style('opacity', 0);
+            d3.selectAll('.tooltip-stacked').transition().duration(200).style('opacity', 0);
+            d3.selectAll('.tooltip-bchart').transition().duration(200).style('opacity', 0);
         });
 
     };
