@@ -31,7 +31,7 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
 
     // Update scales
     const x = d3.scaleLinear()
-        .domain([0, d3.max(processedData, d => d.X)]) // Get max from params
+        .domain([0, 10]) // Get max from params
         .range([0, width]);
 
     const y = d3.scaleBand()
@@ -65,9 +65,9 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
         .append('rect')
         .attr('class', 'bar')
         .attr('x', 0)
-        .attr('y', d => y(d.Y))
+        .attr('y', d => y(d.Y) + (y.bandwidth() * 0.1)) // Adjust y position to center the bar
         .attr('width', d => x(d.X))
-        .attr('height', y.bandwidth())
+        .attr('height', y.bandwidth() * 0.7)
         .style('fill', (d, i) => color(i))
         .on('click', (event, d) => {
             const tooltip = d3.select('.tooltip-bchart');
@@ -114,9 +114,16 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
                 `);
             });
 
+            // Get the min and max year
+            const minYear = d3.min(sortedMovies, d => d.release_year);
+            const maxYear = d3.max(sortedMovies, d => d.release_year);
+
             // Update the title and subtitle
-            d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
+            d3.select('#movieSidebar h5').html('<strong>Bar Chart - Movie Details</strong>');
             d3.select('#movieSidebar').select('h5').append('h6').text(`Genre: ${d.Y}`);
+
+            // Update the year
+            d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${minYear} - ${maxYear}</em>`).style('margin', '0');
 
             d3.select('body').on('click', () => {
                 tooltip.transition()

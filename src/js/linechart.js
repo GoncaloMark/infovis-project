@@ -107,9 +107,9 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
 
                 tooltip
                     .html(`
-                        <strong>${label}</strong>: ${genreObj[label]}<br>
+                        <strong>${label.charAt(0).toUpperCase() + label.slice(1)}</strong>: ${genreObj[label]}<br>
                         <strong>Year</strong>: ${d.year}<br>
-                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${append}${d[metric].toFixed(2)}
+                        <strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}</strong>: ${append ? append + (d[metric] / 1e6).toFixed(2) : d[metric]}${append ? 'M' : ''}
                     `)
                     .style('left', `${event.pageX + 10 - 250 + scrollLeft}px`) // Position tooltip to the right of the cursor
                     .style('top', `${event.pageY + 10}px`); // Position tooltip below the cursor
@@ -138,13 +138,13 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
                     d3.select('#movieTableBody').append('tr').html(`
                         <td>${movie.release_year}</td>
                         <td>${movie.title}</td>
-                        <td>${append}${movie[metric]}</td>
+                        ${metric === 'budget' || metric === 'revenue' ? `<td>$${(movie[metric] / 1e6).toFixed(2)}M</td>` : `<td>${append}${movie[metric]}</td>`}
                     `);
                 });
 
                 // Update the title and subtitle
                 d3.select('#movieSidebar h5').html('<strong>Line Chart - Movie Details</strong>');
-                d3.select('#movieSidebar').select('h5').append('h6').text(`${label}: ${genreObj[label]}`);
+                d3.select('#movieSidebar').select('h5').append('h6').text(`${label.charAt(0).toUpperCase() + label.slice(1)}: ${genreObj[label]}`);
                 // Update the year
                 d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
 
@@ -167,7 +167,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
 
     svg.append('g')
         .attr('class', 'y-axis')
-        .call(d3.axisLeft(y).tickFormat(d => `${append + d}`))
+        .call(d3.axisLeft(y).tickFormat(d => `${append ? append + (d / 1e6).toFixed(2) : d }${append ? 'M' : ''}`))
         .selectAll('path, line')
         .style('stroke', '#ccc');
 

@@ -66,7 +66,7 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
 
     // Draw axes
     const xAxis = d3.axisBottom(x);
-    const yAxis = d3.axisLeft(y).tickFormat(d => `$${d}`);
+    const yAxis = d3.axisLeft(y).tickFormat(d => `${d}%`);
 
     svg.append('g')
         .attr('transform', `translate(0,${height})`)
@@ -124,17 +124,17 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
             // Set tooltip content
             const tooltipContent = `
                 <strong>${labelKey.charAt(0).toUpperCase() + labelKey.slice(1)}:</strong> ${label}<br>
-                <strong>Max:</strong> ${stats.max}<br>
-                <strong>Q3:</strong> ${stats.q3}<br>
-                <strong>Median:</strong> ${stats.median}<br>
-                <strong>Q1:</strong> ${stats.q1}<br>
-                <strong>Min:</strong> ${stats.min}
+                <strong>Max:</strong> ${stats.max.toFixed(4)}%<br>
+                <strong>Q3:</strong> ${stats.q3.toFixed(4)}%<br>
+                <strong>Median:</strong> ${stats.median.toFixed(4)}%<br>
+                <strong>Q1:</strong> ${stats.q1.toFixed(4)}%<br>
+                <strong>Min:</strong> ${stats.min.toFixed(4)}%
             `;
 
             // Get the horizontal and vertical scroll offsets of the scrolling container
             const scrollContainer = document.body; // Use the <body> element or change to the appropriate container
             const scrollLeft = scrollContainer.scrollLeft; // Horizontal scroll offset
-            
+
             // Display the tooltip at the mouse position
             const tooltip = d3.select('.tooltip-box');
             tooltip.transition().duration(200).style('opacity', 1);  // Show tooltip
@@ -152,8 +152,6 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
                     <th scope="col">Year</th>
                     <th scope="col">Title</th>
                     <th scope="col">ROI (%)</th>
-                    <th scope="col">Budget ($)</th>
-                    <th scope="col">Revenue ($)</th>
                 </tr>`;
             d3.select('#movieTableBody')
                 .html(''); // Clear the table body
@@ -173,10 +171,19 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
                 <td>${movie.release_year}</td>
                 <td>${movie.title}</td>
                 <td>${movie['roi']}</td>
-                <td>${movie['budget']}</td>
-                <td>${movie['revenue']}</td>
             `);
             });
+
+            // Get the min and max year
+            const minYear = d3.min(sortedMovies, d => d.release_year);
+            const maxYear = d3.max(sortedMovies, d => d.release_year);
+
+            // Update the title and subtitle
+            d3.select('#movieSidebar h5').html('<strong>Box Plot - Movie Details</strong>');
+            d3.select('#movieSidebar').select('h5').append('h6').text(`${labelKey.charAt(0).toUpperCase() + labelKey.slice(1)}: ${label}`);
+            // Update the year
+            d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${minYear} - ${maxYear}</em>`).style('margin', '0');
+
         });
     });
 };
