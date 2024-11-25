@@ -160,7 +160,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
                 .style("opacity", 1);
 
             // Find the clicked director's data
-            const directorData = data.find(item => item.director === d.name);
+            const directorData = data.find(item => item[label] === d.name);
             if (!directorData) return;
 
             // Parse and count genres
@@ -189,7 +189,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
 
             // Tooltip Content
             tooltip.html(`
-                <strong>Director:</strong> ${d.name}<br>
+                <strong>${label}:</strong> ${d.name}<br>
                 <strong>Movies per Genre:</strong><br>
                 ${genres.map(g => `${g[0]}: ${g[1]}`).join("<br>")}
                 <br>
@@ -199,7 +199,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
                 .style("top", `${event.clientY + window.scrollY + 10}px`);
 
             // Sidebar Content
-            d3.select("#movieSidebar h5").html(`<strong>Details for Director: ${d.name}</strong>`);
+            d3.select("#movieSidebar h5").html(`<strong>Details for ${label}: ${d.name}</strong>`);
 
             const genreStats = genres.map(g => `<tr><td>${g[0]}</td><td>${g[1]}</td></tr>`).join("");
             d3.select("#movieTableHead").html(`
