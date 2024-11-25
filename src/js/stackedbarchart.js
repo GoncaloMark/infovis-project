@@ -36,7 +36,7 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
     xAxis.selectAll('text').style('font-size', '12px');
     xAxis.selectAll('path, line').style('stroke', '#ccc');
 
-    const yAxis = d3.axisLeft(y).tickFormat(d => `$${d}`);
+    const yAxis = d3.axisLeft(y).tickFormat(d => `$${(d / 1e6).toFixed(2)}M`);
     svg.append('g').call(yAxis).selectAll('path, line').style('stroke', '#ccc');
 
     // Add grid lines for the y-axis
@@ -90,7 +90,7 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
 
             tooltip.html(`
                 <strong>${prop.charAt(0).toUpperCase() + prop.slice(1)}</strong>: ${d.genreData[prop]}<br>
-                <strong>${labels[d.barIndex]}</strong>: ${d.value.toFixed(2)}
+                <strong>${labels[d.barIndex].charAt(0).toUpperCase() + labels[d.barIndex].slice(1)}</strong>: $${(d.value / 1e6).toFixed(2)}M
             `)
                 .style('left', `${event.pageX + 10 - 250 + scrollLeft}px`)
                 .style('top', `${event.pageY + 10}px`);
@@ -98,21 +98,12 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
             // Prevent event bubbling
             event.stopPropagation();
 
-            // Update sidebar
-            d3.select('#movieSidebar h5').html('<strong>Cluster Bar Chart - Movie Details</strong>');
-            d3.select('#movieSidebar').select('h5')
-                .append('h6').text(`${prop}: ${d.genreData[prop]}`);
-            d3.select('#movieSidebar').select('h5')
-                .append('h6').html(`<em>${labels[d.barIndex]}: ${d.value.toFixed(2)}</em>`).style('margin', '0');
-
             // Update table header
             const tableHeader = `
                 <tr>
-                <th scope="col">Year</th>
                 <th scope="col">Title</th>
                 <th scope="col">Budget</th>
                 <th scope="col">Revenue</th>
-                <th scope="col">ROI</th>
                 </tr>`;
             d3.select('#movieTableHead').html(tableHeader);
 
@@ -122,14 +113,24 @@ const updateStackedBarChart = (svg, genreData, labels, width, height, prop, colo
             d3.select('#movieTableBody').html(''); // Clear table body
             sortedMovies.forEach(movie => {
                 d3.select('#movieTableBody').append('tr').html(`
-                    <td>${movie.release_year}</td>
                     <td>${movie.title}</td>
-                    <td>${movie.budget}</td>
-                    <td>${movie.revenue}</td>
-                    <td>${movie.roi}%</td>
+                    <td>$${(movie.budget / 1e6).toFixed(2)}M</td>
+                    <td>$${(movie.revenue / 1e6).toFixed(2)}M</td>
                 `);
             });
-            
+
+            // Get the min and max year
+            const minYear = d3.min(sortedMovies, d => d.release_year);
+            const maxYear = d3.max(sortedMovies, d => d.release_year);
+
+            // Update sidebar
+            d3.select('#movieSidebar h5').html('<strong>Cluster Bar Chart - Movie Details</strong>');
+            d3.select('#movieSidebar').select('h5')
+                .append('h6').text(`${prop.charAt(0).toUpperCase() + prop.slice(1)}: ${d.genreData[prop]}`);
+            d3.select('#movieSidebar').select('h5')
+                .append('h6').html(`<em>Average ${labels[d.barIndex].charAt(0).toUpperCase() + labels[d.barIndex].slice(1)}: $${(d.value / 1e6).toFixed(2)}M (${minYear} - ${maxYear})</em>`).style('margin', '0');
+
+
             d3.select('body').on('click', () => {
                 tooltip.transition()
                     .duration(200)
