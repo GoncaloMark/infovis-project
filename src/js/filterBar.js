@@ -4,7 +4,7 @@
  * @param {Function} onFiltersChange - Callback function to call when filters change.
  * @param {Object} yearsRange - Object containing `minYear` and `maxYear`.
  */
-export function initializeFilterBar(genres, onFiltersChange, yearsRange) {
+export function initializeFilterBar(genres, onFiltersChange, yearsRange, searchEntities=null) {
     const genreList = document.getElementById('genreList');
     genres.forEach(genre => {
         const li = document.createElement('li');
@@ -35,6 +35,39 @@ export function initializeFilterBar(genres, onFiltersChange, yearsRange) {
         updateGenreCheckboxes();
         onFiltersChange(getSelectedFilters(yearsRange));
     });
+
+    console.log(searchEntities)
+    // Autocomplete search
+    if (searchEntities) {
+        $("#search").autocomplete({
+            source: searchEntities,
+            minLength: 3
+        });
+
+        $("#search").on("autocompleteselect", function (event, ui) {
+            const selectedEntities = document.querySelectorAll('.genre input');
+        
+            // Count currently checked checkboxes
+            const checkedCount = Array.from(selectedEntities).filter(input => input.checked).length;
+        
+            // Toggle the selected entities
+            ui.item.value.split(',').forEach(genre => {
+                selectedEntities.forEach(input => {
+                    if (input.parentNode.textContent.trim() === genre) {
+                        // Only toggle on if under the limit, and it's not already checked
+                        if (!input.checked && checkedCount < 5) {
+                            input.checked = true;
+                        } else if (input.checked) {
+                            input.checked = false; // Allow toggling off
+                        }
+                    }
+                });
+            });
+        
+            updateGenreCheckboxes();
+            onFiltersChange(getSelectedFilters(yearsRange));
+        });            
+    }
 
     // Initialize the slider
     initializeSlider(yearsRange, onFiltersChange);

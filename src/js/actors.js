@@ -132,7 +132,7 @@ d3.csv('../../data/movies.csv').then(data => {
     });
 
     // Initialize the filter bar
-    initializeFilterBar(actors, updateAllGraphs, yearsRange);
+    initializeFilterBar(actors, updateAllGraphs, yearsRange, actors);
 
     // Initial render
     updateAllGraphs({ selectedGenres: actors.slice(0, 3), ...yearsRange });
