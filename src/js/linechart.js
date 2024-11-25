@@ -139,8 +139,13 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
                     d3.select('#movieTableBody').append('tr').html(`
                         <td>${movie.release_year}</td>
                         <td>${movie.title}</td>
-                        ${metric === 'budget' || metric === 'revenue' ? `<td>$${(movie[metric] / 1e6).toFixed(2)}M</td>` : `<td>${append}${movie[metric]}</td>`}
+                        ${metric === 'budget' || metric === 'revenue' ? `<td>$${(movie[metric] / 1e6).toFixed(2)}M</td>` : `<td id="line_metric">${append}${movie[metric]}</td>`}
                     `);
+
+                    if (metric === 'films_released') {
+                        // Delete the metric column if it's films released
+                        d3.select('#line_metric').remove();
+                    }
                 });
 
                 // Update the title and subtitle
