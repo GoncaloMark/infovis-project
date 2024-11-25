@@ -89,7 +89,6 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
                 .tickFormat('') // Hide the tick labels
         )
         .selectAll('line')
-        .style('stroke', '#ccc') // Grid line color
         .style('stroke-width', '0.5px');
 
     // Draw boxplots
