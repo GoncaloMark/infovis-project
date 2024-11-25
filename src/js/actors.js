@@ -91,7 +91,7 @@ d3.csv('../../data/movies.csv').then(data => {
 
         updateLineChart(lineChart, svgLine, actorData, selectedMetric, color, lineChartWidth, lineChartHeight, "actor");
         updateBoxPlot(svgBox, actorData, color, 40, boxPlotWidth, boxPlotHeight, "actor");
-        updateStackedBarChart(svgStackedBar, actorData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, "actor");
+        updateStackedBarChart(svgStackedBar, actorData, ['budget', 'revenue'], stackedBarChartWidth, stackedBarChartHeight, "actor", color);
         updateSankeyChart(
             svgSankey,
             actorData,
@@ -116,7 +116,7 @@ d3.csv('../../data/movies.csv').then(data => {
         const selectedMetric = document.getElementById('metricDropdown').value;
         updateBoxPlotWindow(boxPlot, svgBox, actorData, color, margin, 40, "actor");
         updateLineChartWindow(lineChart, svgLine, actorData, selectedMetric, color, margin, "actor");
-        updateStackedBarChartWindow(stackedBarChart, svgStackedBar, actorData, ['budget', 'revenue'], margin, "actor");
+        updateStackedBarChartWindow(stackedBarChart, svgStackedBar, actorData, ['budget', 'revenue'], margin, "actor", color);
         updateSankeyChartWindow(sankey, svgSankey, actorData, color, margin, 'actor', 'actor')
     });
 

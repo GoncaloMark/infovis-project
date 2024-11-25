@@ -92,7 +92,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
     const directorToGenre = transformDirectorToGenre(data, label);
     const sankeyData = processSankeyData(directorToGenre, srcKey, "genre", label);
 
-    console.log(directorToGenre)
+    console.log(data)
 
     const sankeyLayout = sankey({
         nodes: sankeyData.nodes.map(d => ({ ...d })),
@@ -130,7 +130,74 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
         .attr("height", d => d.y1 - d.y0)
         .attr("width", sankey.nodeWidth())
         .attr("fill", (d, i) => color(i))
-        .attr("stroke", "#000");
+        .attr("stroke", "#000")
+        .on("click", (event, d) => {
+            event.stopPropagation();
+            const tooltip = d3.select(".tooltip-sankey");
+            tooltip.transition()
+                .duration(100)
+                .style("opacity", 1);
+        
+            // Find the clicked director's data
+            const directorData = data.find(item => item.director === d.name);
+            if (!directorData) return;
+        
+            // Parse and count genres
+            const genreCounts = {};
+            directorData.data.forEach(year => {
+                year.films.forEach(film => {
+                    film.genres.split(",").forEach(genre => {
+                        const trimmedGenre = genre.trim();
+                        genreCounts[trimmedGenre] = (genreCounts[trimmedGenre] || 0) + 1;
+                    });
+                });
+            });
+
+            // console.log(genreCounts)
+        
+            // Convert genre counts into an array and find the most popular genre
+            const genres = Object.entries(genreCounts);
+            const mostPopularGenre = genres.reduce(
+                (max, genre) => genre[1] > max[1] ? genre : max,
+                ["", 0]
+            );
+        
+            // Tooltip Content
+            tooltip.html(`
+                <strong>Director:</strong> ${d.name}<br>
+                <strong>Movies per Genre:</strong><br>
+                ${genres.map(g => `${g[0]}: ${g[1]}`).join("<br>")}
+                <br>
+                <strong>Most Films in:</strong> ${mostPopularGenre[0]} (${mostPopularGenre[1]} movies)
+            `)
+            .style("left", `${event.clientX + window.scrollX + 10}px`)
+            .style("top", `${event.clientY + window.scrollY + 10}px`);
+        
+            // Sidebar Content
+            d3.select("#movieSidebar h5").html(`<strong>Details for Director: ${d.name}</strong>`);
+        
+            const genreStats = genres.map(g => `<tr><td>${g[0]}</td><td>${g[1]}</td></tr>`).join("");
+            d3.select("#movieTableHead").html(`
+                <tr>
+                    <th>Genre</th>
+                    <th>Movies Count</th>
+                </tr>
+            `);
+            d3.select("#movieTableBody").html(genreStats);
+        
+            // Highlight the most popular genre
+            d3.select("#movieSidebar .highlight").html(`
+                <p><strong>Most Popular Genre:</strong> ${mostPopularGenre[0]} (${mostPopularGenre[1]} movies)</p>
+            `);
+        
+            // Tooltip hide logic on body click
+            d3.select("body").on("click", () => {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 0);
+            });
+        });
+        
 
     nodeEnter
         .append("text")
