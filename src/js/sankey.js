@@ -94,6 +94,12 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
 
     console.log(data)
 
+    if (sankeyData.nodes.length === 0 || sankeyData.links.length === 0) {
+        svg.select(".sankey-links").selectAll("path").remove();
+        svg.select(".sankey-nodes").selectAll("g").remove();
+        return;
+    }
+
     const sankeyLayout = sankey({
         nodes: sankeyData.nodes.map(d => ({ ...d })),
         links: sankeyData.links.map(d => ({ ...d }))
