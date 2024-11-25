@@ -119,7 +119,7 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
         .attr("stroke-width", d => Math.max(1, d.width))
         .attr("fill", "none")
         .style("mix-blend-mode", "multiply") // Enable blend mode
-        .style("opacity", 0.1); // Make links slightly transparent
+        .style("opacity", 0.25); // Make links slightly transparent
 
 
     link.exit().remove();
@@ -141,16 +141,28 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
         .attr("fill", (d, i) => color(i))
         .attr("stroke", "#000")
         .on("click", (event, d) => {
+            // Disable the #expandData button (add disabled class)
+            d3.select("#expandData").classed("disabled", true);
+
+            d3.select('#movieTableBody')
+                .html(''); // Clear the table body
+            
+            d3.select('#movieTableHead')
+                .html(''); // Clear the table head
+            
+            d3.select('#movieSidebar h5')
+                .html('<strong>Sankey</strong>'); // Clear the sidebar title
+            
             event.stopPropagation();
             const tooltip = d3.select(".tooltip-sankey");
             tooltip.transition()
                 .duration(100)
                 .style("opacity", 1);
-        
+
             // Find the clicked director's data
             const directorData = data.find(item => item.director === d.name);
             if (!directorData) return;
-        
+
             // Parse and count genres
             const genreCounts = {};
             directorData.data.forEach(year => {
@@ -163,14 +175,18 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
             });
 
             // console.log(genreCounts)
-        
+
             // Convert genre counts into an array and find the most popular genre
             const genres = Object.entries(genreCounts);
             const mostPopularGenre = genres.reduce(
                 (max, genre) => genre[1] > max[1] ? genre : max,
                 ["", 0]
             );
-        
+
+            // Get the horizontal and vertical scroll offsets of the scrolling container
+            const scrollContainer = document.body; // Use the <body> element or change to the appropriate container
+            const scrollLeft = scrollContainer.scrollLeft; // Horizontal scroll offset
+
             // Tooltip Content
             tooltip.html(`
                 <strong>Director:</strong> ${d.name}<br>
@@ -179,12 +195,12 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
                 <br>
                 <strong>Most Films in:</strong> ${mostPopularGenre[0]} (${mostPopularGenre[1]} movies)
             `)
-            .style("left", `${event.clientX + window.scrollX + 10}px`)
-            .style("top", `${event.clientY + window.scrollY + 10}px`);
-        
+                .style("left", `${event.clientX + 10 - 250 + scrollLeft}px`)
+                .style("top", `${event.clientY + window.scrollY + 10}px`);
+
             // Sidebar Content
             d3.select("#movieSidebar h5").html(`<strong>Details for Director: ${d.name}</strong>`);
-        
+
             const genreStats = genres.map(g => `<tr><td>${g[0]}</td><td>${g[1]}</td></tr>`).join("");
             d3.select("#movieTableHead").html(`
                 <tr>
@@ -193,12 +209,12 @@ function updateSankeyChart(svg, data, width, height, color, label, srcKey) {
                 </tr>
             `);
             d3.select("#movieTableBody").html(genreStats);
-        
+
             // Highlight the most popular genre
             d3.select("#movieSidebar .highlight").html(`
                 <p><strong>Most Popular Genre:</strong> ${mostPopularGenre[0]} (${mostPopularGenre[1]} movies)</p>
             `);
-        
+
             // Tooltip hide logic on body click
             d3.select("body").on("click", () => {
                 tooltip.transition()

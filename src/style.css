@@ -297,7 +297,7 @@ body::-webkit-scrollbar-thumb {
 
 /* General button styles */
 #toggleMovieSidebar {
-    z-index: 1100;
+    z-index: 500;
     /* Ensure it's above the sidebar itself */
     position: fixed;
     height: 5em;
@@ -334,7 +334,7 @@ body::-webkit-scrollbar-thumb {
 
 .table-responsive {
     overflow-y: auto;
-    max-height: 90%;
+    max-height: 75%;
 }
 
 .ui-autocomplete {
@@ -342,4 +342,23 @@ body::-webkit-scrollbar-thumb {
     overflow-y: auto;
     /* prevent horizontal scrollbar */
     overflow-x: hidden;
+}
+
+#expandData {
+    margin-bottom: 1rem;
+}
+
+.scrollable-cell {
+    width: 300px; /* Adjust width as needed */
+    max-height: 50px; /* Adjust height as needed */
+    overflow: auto;
+    text-overflow: ellipsis;
+    padding: 5px; /* Optional for spacing */
+    border: 1px solid #ccc; /* Optional for visibility */
+}
+
+.nowrap-cell {
+    white-space: nowrap;
+    text-overflow: ellipsis; /* Optional: adds an ellipsis if the content overflows */
+    overflow: hidden; /* Prevents overflow content */
 }

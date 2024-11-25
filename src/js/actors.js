@@ -131,12 +131,21 @@ d3.csv('../../data/movies.csv').then(data => {
         updateSankeyChartWindow(sankey, svgSankey, actorData, color, margin, 'actor', 'actor')
     });
 
-    // Initialize the filter bar
-    initializeFilterBar(actors, updateAllGraphs, yearsRange, actors);
 
     // Initial render
-    updateAllGraphs({ selectedGenres: actors.slice(0, 3), ...yearsRange });
 
+    // Get query parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const actorArg = urlParams.get('actor');
+
+    if (actorArg) {
+        updateAllGraphs({ selectedGenres: [actorArg], ...yearsRange });
+        initializeFilterBar(actors, updateAllGraphs, yearsRange, actors, [actorArg]);
+
+    } else {
+        updateAllGraphs({ selectedGenres: actors.slice(0, 3), ...yearsRange });
+        initializeFilterBar(actors, updateAllGraphs, yearsRange, actors);
+    }
     $(document).ready(function () {
         $("#toggleMovieSidebar").click(function () {
             $("#movieSidebar").toggleClass("closed");

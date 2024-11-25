@@ -70,6 +70,7 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
         .attr('height', y.bandwidth() * 0.7)
         .style('fill', (d, i) => color(i))
         .on('click', (event, d) => {
+            d3.select("#expandData").classed("disabled", false);
             const tooltip = d3.select('.tooltip-bchart');
             console.log("CLICK")
             tooltip.transition()
@@ -82,7 +83,7 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
 
             tooltip.html(`
                     <strong>Genre:</strong> ${d.Y}<br>
-                    <strong>Vote Average:</strong> ${d.X.toFixed(2)}
+                    <strong>Average Rating:</strong> ${d.X.toFixed(2)}
                 `)
                 .style('left', `${event.clientX + window.scrollX + 10 - 250 + scrollLeft}px`) // Adjust for horizontal scroll
                 .style('top', `${event.clientY + window.scrollY + 10}px`); // Adjust for vertical scroll
@@ -94,6 +95,7 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
                 <tr>
                     <th scope="col">Year</th>
                     <th scope="col">Title</th>
+                    <th scope="col">Rating</th>
                 </tr>`;
             d3.select('#movieTableBody')
                 .html(''); // Clear the table body
@@ -124,6 +126,103 @@ const updateHorizontalBarChart = (svg, data, width, height, x_axis, y_axis, colo
 
             // Update the year
             d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${minYear} - ${maxYear}</em>`).style('margin', '0');
+
+                            // Button that when clicked expands the data in the sidebar to show all columns
+                d3.select('#expandData').on('click', () => {
+                    // Update the table header
+                    const tableHeader = `
+                    <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Popularity</th>
+                    <th scope="col">Rating</th>
+                    <th scope="col">Budget</th>
+                    <th scope="col">Revenue</th>
+                    <th scope="col">ROI</th>
+                    <th scope="col">Director(s)</th>
+                    <th scope="col">Cast</th>
+                    </tr>`;
+
+                    d3.select('#movieTableBody')
+                        .html(''); // Clear the table body
+
+                    d3.select('#movieTableHead')
+                        .html(tableHeader); // Update the table header
+
+                    sortedMovies.forEach(movie => {
+                        // Create hyperlinks for directors
+                        const directorLinks = movie.director.split(',').map(director =>
+                            `<a href="./directors.html?director=${encodeURIComponent(director.trim())}" target="_blank">${director.trim()}</a>`
+                        ).join(', ');
+
+                        // Create hyperlinks for cast members
+                        const castLinks = movie.cast.split(',').map(actor =>
+                            `<a href="./actors.html?actor=${encodeURIComponent(actor.trim())}" target="_blank">${actor.trim()}</a>`
+                        ).join(', ');
+
+                        // Append the row to the table body
+                        d3.select('#movieTableBody').append('tr').html(`
+                                <td>${movie.release_year}</td>
+                                <td class="nowrap-cell">${movie.title}</td>
+                                <td>${movie.popularity}</td>
+                                <td>${movie.vote_average}</td>
+                                <td>$${(movie.budget / 1e6).toFixed(2)}M</td>
+                                <td>$${(movie.revenue / 1e6).toFixed(2)}M</td>
+                                <td>${movie.roi}</td>
+                                <td><div class="scrollable-cell">${directorLinks}</div></td>
+                                <td><div class="scrollable-cell">${castLinks}</div></td>
+                            `);
+                    });
+
+                });
+                // Button that when clicked expands the data in the sidebar to show all columns
+                d3.select('#expandData').on('click', () => {
+                    // Update the table header
+                    const tableHeader = `
+                    <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Popularity</th>
+                    <th scope="col">Rating</th>
+                    <th scope="col">Budget</th>
+                    <th scope="col">Revenue</th>
+                    <th scope="col">ROI</th>
+                    <th scope="col">Director(s)</th>
+                    <th scope="col">Cast</th>
+                    </tr>`;
+
+                    d3.select('#movieTableBody')
+                        .html(''); // Clear the table body
+
+                    d3.select('#movieTableHead')
+                        .html(tableHeader); // Update the table header
+
+                    sortedMovies.forEach(movie => {
+                        // Create hyperlinks for directors
+                        const directorLinks = movie.director.split(',').map(director =>
+                            `<a href="./directors.html?director=${encodeURIComponent(director.trim())}" target="_blank">${director.trim()}</a>`
+                        ).join(', ');
+
+                        // Create hyperlinks for cast members
+                        const castLinks = movie.cast.split(',').map(actor =>
+                            `<a href="./actors.html?actor=${encodeURIComponent(actor.trim())}" target="_blank">${actor.trim()}</a>`
+                        ).join(', ');
+
+                        // Append the row to the table body
+                        d3.select('#movieTableBody').append('tr').html(`
+                                <td>${movie.release_year}</td>
+                                <td class="nowrap-cell">${movie.title}</td>
+                                <td>${movie.popularity}</td>
+                                <td>${movie.vote_average}</td>
+                                <td>$${(movie.budget / 1e6).toFixed(2)}M</td>
+                                <td>$${(movie.revenue / 1e6).toFixed(2)}M</td>
+                                <td>${movie.roi}</td>
+                                <td><div class="scrollable-cell">${directorLinks}</div></td>
+                                <td><div class="scrollable-cell">${castLinks}</div></td>
+                            `);
+                    });
+
+                });
 
             d3.select('body').on('click', () => {
                 tooltip.transition()

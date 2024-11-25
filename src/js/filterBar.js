@@ -4,7 +4,7 @@
  * @param {Function} onFiltersChange - Callback function to call when filters change.
  * @param {Object} yearsRange - Object containing `minYear` and `maxYear`.
  */
-export function initializeFilterBar(genres, onFiltersChange, yearsRange, searchEntities=null) {
+export function initializeFilterBar(genres, onFiltersChange, yearsRange, searchEntities=null, initialSelectedGenres=null) {
     const genreList = document.getElementById('genreList');
     genres.forEach(genre => {
         const li = document.createElement('li');
@@ -16,10 +16,18 @@ export function initializeFilterBar(genres, onFiltersChange, yearsRange, searchE
         genreList.appendChild(li);
     });
 
-    // Check the first 3 genres by default
-    document.querySelectorAll('.genre input').forEach((input, index) => {
-        if (index < 3) input.checked = true;
-    });
+    if (initialSelectedGenres){
+        document.querySelectorAll('.genre input').forEach(input => {
+            if (initialSelectedGenres.includes(input.parentNode.textContent.trim())) {
+                input.checked = true;
+            }
+        });
+    } else {
+        // Check the first 3 genres by default
+        document.querySelectorAll('.genre input').forEach((input, index) => {
+            if (index < 3) input.checked = true;
+        });
+    }
 
     // Add change event listener to update filters when checkboxes change
     document.querySelectorAll('.genre input').forEach(input => {

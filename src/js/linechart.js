@@ -94,6 +94,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
             .attr('r', 4)
             .attr('fill', color(index))
             .on('click', (event, d) => {
+                d3.select("#expandData").classed("disabled", false);
 
                 console.log(genreObj.data)
 
@@ -148,6 +149,55 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
                 // Update the year
                 d3.select('#movieSidebar').select('h5').append('h6').html(`<em>${d.year}</em>`).style('margin', '0');
 
+                // Button that when clicked expands the data in the sidebar to show all columns
+                d3.select('#expandData').on('click', () => {
+                    // Update the table header
+                    const tableHeader = `
+                    <tr>
+                    <th scope="col">Year</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Popularity</th>
+                    <th scope="col">Rating</th>
+                    <th scope="col">Budget</th>
+                    <th scope="col">Revenue</th>
+                    <th scope="col">ROI</th>
+                    <th scope="col">Director(s)</th>
+                    <th scope="col">Cast</th>
+                    </tr>`;
+
+                    d3.select('#movieTableBody')
+                        .html(''); // Clear the table body
+
+                    d3.select('#movieTableHead')
+                        .html(tableHeader); // Update the table header
+
+                    sortedMovies.forEach(movie => {
+                        // Create hyperlinks for directors
+                        const directorLinks = movie.director.split(',').map(director =>
+                            `<a href="./directors.html?director=${encodeURIComponent(director.trim())}" target="_blank">${director.trim()}</a>`
+                        ).join(', ');
+
+                        // Create hyperlinks for cast members
+                        const castLinks = movie.cast.split(',').map(actor =>
+                            `<a href="./actors.html?actor=${encodeURIComponent(actor.trim())}" target="_blank">${actor.trim()}</a>`
+                        ).join(', ');
+
+                        // Append the row to the table body
+                        d3.select('#movieTableBody').append('tr').html(`
+                                <td>${movie.release_year}</td>
+                                <td class="nowrap-cell">${movie.title}</td>
+                                <td>${movie.popularity}</td>
+                                <td>${movie.vote_average}</td>
+                                <td>$${(movie.budget / 1e6).toFixed(2)}M</td>
+                                <td>$${(movie.revenue / 1e6).toFixed(2)}M</td>
+                                <td>${movie.roi}</td>
+                                <td><div class="scrollable-cell">${directorLinks}</div></td>
+                                <td><div class="scrollable-cell">${castLinks}</div></td>
+                            `);
+                    });
+
+                });
+
                 d3.select('body').on('click', () => {
                     tooltip.transition()
                         .duration(200)
@@ -167,7 +217,7 @@ const updateLineChart = (lineChart, svg, data, metric, color, width, height, lab
 
     svg.append('g')
         .attr('class', 'y-axis')
-        .call(d3.axisLeft(y).tickFormat(d => `${append ? append + (d / 1e6).toFixed(2) : d }${append ? 'M' : ''}`))
+        .call(d3.axisLeft(y).tickFormat(d => `${append ? append + (d / 1e6).toFixed(2) : d}${append ? 'M' : ''}`))
         .selectAll('path, line')
         .style('stroke', '#ccc');
 
