@@ -113,11 +113,22 @@
                             <option value="popularity" selected>Popularity (Score)</option>
                             <option value="vote_average">Rating (0-10)</option>
                             <option value="films_released">Films Released (Count)</option>
-                            <option value="roi">ROI</option>
+                            <option value="roi">ROI (%)</option>
                             <option value="budget">Budget ($USD)</option>
                             <option value="revenue">Revenue ($USD)</option>
                         </select>
                         <p class="ms-2 mb-0 fw-bold">Over Time</p>
+                        <span class="ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Popularity is calculated by a model that analyses:
+    - Number of votes for the day
+    - Number of views for the day
+    - Number of users who marked it as a &quot;favourite&quot; for the day
+    - Number of users who added it to their &quot;watchlist&quot; for the day
+    - Release date
+    - Number of total votes
+    - Previous days score">
+                            <i class="bi bi-info-circle" style="cursor: pointer;"></i>
+                        </span>
+
                     </div>
                     <!-- Graph Container -->
                     <div class="w-100 h-75" id="lineGraph"></div>
@@ -148,7 +159,11 @@
                         <p class="ms-2 mb-1 fw-bold">
                             Average Return On Investment (ROI)
                             <span class="ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-                                title="Ex: an investment of $1000 with a profit of $200 has a ROI of 20%.">
+                                title="ROI (Return on Investment) is a performance measure used to evaluate the profitability of an investment.
+It is calculated as the percentage ratio of net profit to the initial cost of the investment.
+
+Example:
+If an investment of $1000 generates a profit of $200, the ROI is 20%, meaning you earned $200 on top of your initial investment of $1000.">
                                 <i class="bi bi-info-circle" style="cursor: pointer;"></i>
                             </span>
                         </p>
@@ -166,9 +181,9 @@
                     <!-- Tooltip container -->
                     <div class="tooltip tooltip-bchart"></div>
                 </div>
-                </div>
             </div>
         </div>
+    </div>
     </div>
 
     <div id="infoSidebar" class="position-relative" style="height: 100vh;">

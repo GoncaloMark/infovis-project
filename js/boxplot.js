@@ -62,7 +62,9 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
 
     // Update scales
     x.domain(labels);
-    y.domain([d3.min(boxData.flatMap(d => [d.stats.min])) * 1.5, d3.max(boxData.flatMap(d => [d.stats.max])) * 1.1]);
+    const minY = d3.min(boxData.flatMap(d => [d.stats.min]));
+    const maxY = d3.max(boxData.flatMap(d => [d.stats.max]));
+    y.domain([minY < 0 ? minY * 1.5 : minY * 0.5, maxY > 0 ? maxY * 1.1 : maxY * 0.5]);
 
     // Draw axes
     const xAxis = d3.axisBottom(x);
@@ -87,7 +89,6 @@ const updateBoxPlot = (svg, data, color, boxWidth, width, height, labelKey) => {
                 .tickFormat('') // Hide the tick labels
         )
         .selectAll('line')
-        .style('stroke', '#ccc') // Grid line color
         .style('stroke-width', '0.5px');
 
     // Draw boxplots
