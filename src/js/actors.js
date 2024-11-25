@@ -10,11 +10,20 @@ d3.csv('../../data/movies.csv').then(data => {
         maxYear: Math.max(...data.map(d => +d.release_year)),
     };
 
-    const actors = [
+    const tempActors = [
         ...new Set(
             data.flatMap(d => d.cast.split(', ').map(name => name.trim()))
         )
     ].sort();
+    
+    const actorCounts = data.flatMap(d => d.cast.split(', ').map(name => name.trim()))
+        .reduce((counts, actor) => {
+            counts[actor] = (counts[actor] || 0) + 1;
+            return counts;
+        }, {});
+    
+    const actors = tempActors.filter(actor => actorCounts[actor] >= 5);
+    
 
     function getActorData(data, dirNames, startingYear = 1970, endingYear = 2024) {
         return dirNames.map(dir => {

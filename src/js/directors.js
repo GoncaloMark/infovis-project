@@ -10,11 +10,19 @@ d3.csv('../../data/movies.csv').then(data => {
         maxYear: Math.max(...data.map(d => +d.release_year)),
     };
 
-    const directors = [
+    const tempDirectors = [
         ...new Set(
             data.flatMap(d => d.director.split(', ').map(name => name.trim()))
         )
     ].sort();
+
+    const directorCounts = data.flatMap(d => d.director.split(', ').map(name => name.trim()))
+        .reduce((counts, director) => {
+            counts[director] = (counts[director] || 0) + 1;
+            return counts;
+        }, {});
+
+    const directors = tempDirectors.filter(director => directorCounts[director] >= 5);
 
     function getDirectorData(data, dirNames, startingYear = 1970, endingYear = 2024) {
         return dirNames.map(dir => {
